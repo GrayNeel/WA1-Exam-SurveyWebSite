@@ -10,6 +10,9 @@ const session = require('express-session');
 const app = new express();
 const port = 3001;
 
+/** Import DB queries */
+const userDao = require('./user-dao');
+
 /********************************* Session Management ************************************/
 
 /** Middleware for log-in and log-out */
@@ -18,16 +21,15 @@ const passportLocal = require('passport-local');
 
 /** Initialize and configure passport */
 passport.use(new passportLocal.Strategy((username, password, done) => {
-  //TODO: Enable this
   /** verification callback for authentication */
-  // user_dao.getUser(username, password).then(user => {
-  //     if (user)
-  //         done(null, user);
-  //     else
-  //         done(null, false, { message: 'Username or password wrong' });
-  // }).catch(err => {
-  //     done(err);
-  // });
+  userDao.getUser(username, password).then(user => {
+      if (user)
+          done(null, user);
+      else
+          done(null, false, { message: 'Username or password wrong' });
+  }).catch(err => {
+      done(err);
+  });
 }));
 
 /** serialize and de-serialize the user (user object <-> session)
@@ -61,7 +63,7 @@ const isLoggedIn = (req, res, next) => {
 
 // initialize and configure HTTP sessions
 app.use(session({
-  secret: 'The secret of aShortName. We really do love Corno please 30L us',
+  secret: 'Elementary, my dear Watson.',
   resave: false,
   saveUninitialized: false
 }));
