@@ -12,6 +12,7 @@ const port = 3001;
 
 /** Import DB queries */
 const userDao = require('./user-dao');
+const surveyDao = require('./survey-dao');
 
 /********************************* Session Management ************************************/
 
@@ -82,6 +83,35 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Hello World, from your server');
+});
+
+/** Show all available surveys title to unregistered users */
+app.get('/api/surveys/all', (req,res) => {
+  surveyDao.getAllSurveysTitle()
+    .then((surveys) => {
+      if(Object.entries(surveys).length === 0)
+        res.status(404).json("No surveys available");
+      else
+        res.json(surveys);
+    })
+    .catch((error) => {res.status(500).json(error);});
+});
+
+/** Search a survey through its ID for unregistered users */
+app.get('/api/surveys', (req,res) => {
+  const id = req.query.id;
+
+  if(isNaN(id))
+    res.status(500).json({surveyId: this.id, error: "Not a valid request"});
+  else
+    surveyDao.getSurveyById(id)
+      .then((survey) => {
+        if(Object.entries(survey).length === 0)
+          res.status(404).json({surveyId: this.id, error: "No survey with given id"});
+        else
+          res.json(survey);
+      })
+      .catch((error) => {res.status(500).json(error);});
 });
 
 /*****************************************************************************************/

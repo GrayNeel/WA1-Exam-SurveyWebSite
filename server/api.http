@@ -1,0 +1,15 @@
+### Get all available surveys
+GET http://localhost:3001/api/surveys/all
+
+### Search existing survey by ID
+GET http://localhost:3001/api/surveys?id=1
+
+### Search unexisting survey by ID
+GET http://localhost:3001/api/surveys?id=1222
+
+### Search survey by wrong ID
+GET http://localhost:3001/api/surveys?id=12sada2
+
+### Unknoown route
+GET http://localhost:3001/api/notavalidapi
+
