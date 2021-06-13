@@ -40,8 +40,8 @@
 
 ## Users Credentials
 
-| id |      email        |  name  |
-| -- | ----------------- | ------ |
-|  1 | prova@example.com | strong |
-|  2 | rob@aol.com       |        |
-|  3 | io@polito.it      | polito |
+| id |      email        |  name   | password    |
+| -- | ----------------- | ------- | ----------- |
+|  1 | prova@example.com | admin   |  strong     |
+|  2 | rob@aol.com       | rob     |  impossible |
+|  3 | io@polito.it      | student |  polito     |
