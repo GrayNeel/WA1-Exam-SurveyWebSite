@@ -10,6 +10,6 @@ GET http://localhost:3001/api/surveys?id=1222
 ### Search survey by wrong ID
 GET http://localhost:3001/api/surveys?id=12sada2
 
-### Unknoown route
+### Unknown route
 GET http://localhost:3001/api/notavalidapi
 
