@@ -40,5 +40,8 @@
 
 ## Users Credentials
 
-- username, password (plus any other requested info)
-- username, password (plus any other requested info)
+| id |      email        |  name  |
+| -- | ----------------- | ------ |
+|  1 | prova@example.com | strong |
+|  2 | rob@aol.com       |        |
+|  3 | io@polito.it      | polito |
