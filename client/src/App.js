@@ -25,7 +25,7 @@ function App() {
     try {
       const user = await API.logIn(credentials);
       setLoggedIn(true);
-      setMessage({ msg: `Welcome, ${user}!`, type: 'success' });
+      setMessage({ msg: `Welcome, ${user.name}!`, type: 'success' });
     } catch (err) {
       setMessage({ msg: err, type: 'danger' });
       throw "Incorrect username and/or password";
