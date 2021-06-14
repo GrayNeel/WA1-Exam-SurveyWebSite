@@ -174,6 +174,29 @@ app.post('/api/surveys/new', (req, res) => {
 
 });
 
+/** Add new answer to database, but first check validity */
+app.post('/api/surveys/answer', (req, res) => {
+  //surveys/answer?id=1
+  const id = req.query.id;
+
+  /** This function will be called inside the promise of the getSurveyById query
+   * It checks the validity of answers, then add to dabtabase
+   */
+  let checkAnswers = (survey) => {
+    //TODO: check validity of answers that are in the body, then add to database
+  }
+
+  surveyDao.getSurveyById(id)
+      .then((survey) => {
+        if (Object.entries(survey).length === 0)
+          res.status(404).json({ surveyId: this.id, error: "No survey with given id" });
+        else {
+          checkAnswers(survey);
+        }
+      })
+      .catch((error) => { res.status(500).json(error); });
+});
+
 /*****************************************************************************************/
 /************************************* USER'S API ****************************************/
 // POST /sessions 
