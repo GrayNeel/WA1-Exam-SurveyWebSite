@@ -1,36 +1,42 @@
 'use strict';
 
 async function getAvailableSurveys() {
-    try {
-        const response = await fetch('/api/surveys/all');
-        if (response.ok) {
-            const surveys = await response.json();
-            return surveys;
-        }
-        else {
-            throw new Error(response.statusText);
-        }
-    } catch (err) {
-        console.log(err);
-        throw new Error(err);
+    const response = await fetch('/api/surveys/all');
+    if (response.ok) {
+        const surveys = await response.json();
+        return surveys;
+    }
+    else {
+        return { 'err': 'GET error' };
     }
 }
 
 async function getSurveyById(surveyId) {
-    try {
-        const response = await fetch('/api/surveys?id=' + surveyId);
-        if (response.ok) {
-            const survey = await response.json();
-            return survey;
-        }
-        else {
-            throw new Error(response.statusText);
-        }
-    } catch (err) {
-        console.log(err);
-        throw new Error(err);
+    const response = await fetch('/api/surveys?id=' + surveyId);
+    if (response.ok) {
+        const survey = await response.json();
+        return survey;
+    }
+    else {
+        return { 'err': 'GET error' };
     }
 }
+
+async function addNewSurvey(survey) {
+    const response = await fetch('api/surveys/new', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(survey)
+    });
+
+    if (response.ok) {
+        return null;
+    } else {
+        return { 'err': 'POST error' };
+    }
+};
 
 /*********************************** USER'S SESSION API *********************************************/
 
@@ -71,7 +77,7 @@ async function getUserInfo() {
     }
 }
 
-const API = { getAvailableSurveys, getSurveyById, logIn, logOut, getUserInfo };
+const API = { getAvailableSurveys, getSurveyById, addNewSurvey, logIn, logOut, getUserInfo };
 
 
 export default API;

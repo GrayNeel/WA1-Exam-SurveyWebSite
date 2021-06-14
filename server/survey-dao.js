@@ -36,3 +36,30 @@ exports.getSurveyById = (surveyId) => {
     });
     
 }
+
+exports.addSurvey = (surveyId, userId, surveyTitle, questions) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO surveys(surveyId, userId, title, questions) VALUES(?, ?, ?, ?)';
+        db.all(sql, [surveyId, userId, surveyTitle, JSON.stringify(questions)], (err) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            resolve();
+        });
+    });
+}
+
+exports.getLastSurveyId = () => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT MAX(surveyId) as lastid FROM surveys';
+        db.all(sql, [], (err, row) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(row[0].lastid);
+        });
+    });
+};

@@ -114,6 +114,64 @@ app.get('/api/surveys', (req,res) => {
       .catch((error) => {res.status(500).json(error);});
 });
 
+/** Add a new survey received from a registered user */
+//TODO: make it loggedIn only!!
+app.post('/api/surveys/new', (req, res) => {
+  let surveyTitle = req.body.title;
+  let questions = req.body.questions;
+
+  //TODO: uncomment this when isLoggedin only
+  //let userId = req.user.id;
+  let userId = 0;
+
+  if(surveyTitle === undefined || surveyTitle.length === 0 || questions === undefined || Object.entries(questions).length === 0) {
+    res.status(500).json("Invalid survey");
+    return;
+  }
+
+  /** Functions that adds IDs to questions and eventually to options */
+  let mapQuestions = (id) => {
+    let count = 1;
+
+    /** Add questionId, surveyId and userId to questions */
+    questions = questions.map((q) => ({
+        questionId: count++,
+        userId: this.userId,
+        surveyId: id,
+        title: q.title,
+        min: q.min,
+        max: q.max,
+        options: q.options,
+        mandatory: q.mandatory
+      }));
+
+      questions.forEach((q) => {
+        if(q.options !== undefined) {
+          count = 1;
+          q.options = q.options.map((o) => ({
+            optionId: count++,
+            surveyId: id,
+            questionId: q.questionId,
+            text: o.text
+          }));
+        }
+      });
+
+      surveyDao.addSurvey(id, userId, surveyTitle, questions)
+      .then(() => res.end())
+      .catch((error) => {res.status(500).json(error);});
+  }
+
+  /* Get last surveyId in database */
+  surveyDao.getLastSurveyId()
+    .then((id) => {
+      mapQuestions(id+1);
+    })
+    .catch((error) => {res.status(500).json(error);});
+
+
+});
+
 /*****************************************************************************************/
 /************************************* USER'S API ****************************************/
 // POST /sessions 
