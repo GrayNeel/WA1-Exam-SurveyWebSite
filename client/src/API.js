@@ -59,6 +59,17 @@ async function getAvailableSurveysLogged() {
     }
 }
 
+async function getAnswersOfSurvey(surveyId) {
+    const response = await fetch('http://localhost:3001/api/surveys/get/answers?id='+surveyId);
+    if (response.ok) {
+        const answers = await response.json();
+        return answers;
+    }
+    else {
+        return { 'err': 'GET error' };
+    }
+}
+
 /*********************************** USER'S SESSION API *********************************************/
 
 async function logIn(credentials) {
@@ -98,7 +109,7 @@ async function getUserInfo() {
     }
 }
 
-const API = { getAvailableSurveys, getAvailableSurveysLogged, getSurveyById, addNewSurvey, addNewAnswer, logIn, logOut, getUserInfo };
+const API = { getAvailableSurveys, getAvailableSurveysLogged, getAnswersOfSurvey, getSurveyById, addNewSurvey, addNewAnswer, logIn, logOut, getUserInfo };
 
 
 export default API;

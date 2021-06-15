@@ -16,6 +16,9 @@ GET http://localhost:3001/api/notavalidapi
 ### Get all the surveys (and answers count) of a registered user (loggedin Only)
 GET http://localhost:3001/api/surveys/my
 
+### Get all the answers to a survey (loggedin Only)
+GET http://localhost:3001/api/surveys/get/answers?id=2
+
 ### New survey from registered user
 POST http://localhost:3001/api/surveys/new
 Content-Type: application/json

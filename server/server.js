@@ -236,7 +236,7 @@ app.post('/api/surveys/answer',
           let answer = answers.filter(a => (a.questionId === q.questionId));
           /** Check if answers to multiple question is mandatory and user answered it */
           if (q.min > 0) {
-            if ((answer[0] === undefined || Object.entries(answer[0].selOptions).length < q.min)) {
+            if ((answer[0] === undefined || Object.entries(answer[0].selOptions).length < q.min || Object.entries(answer[0].selOptions).length > q.max)) {
               verified = false;
             }
           }
@@ -266,6 +266,27 @@ app.post('/api/surveys/answer',
       })
       .catch((error) => { res.status(500).json(error); });
   });
+
+/** Show all available answers of a survey */
+//TODO: Make it loggedIn Only
+app.get('/api/surveys/get/answers', (req, res) => {
+  //TODO: uncomment this when isLoggedin only
+  //let userId = req.user.id;
+  let userId = 0;
+  ///api/surveys/get/answers?id=1
+  const surveyId = req.query.id;
+
+  // Only answers of survey of the owner are shown
+  surveyDao.getAllAnswersBySurveyId(surveyId, userId)
+    .then((answers) => {
+      if (Object.entries(answers).length === 0)
+        res.status(404).json({ surveyId: this.id, error: "No surveyID found for the user" });
+      else {
+        res.json(answers);
+      }
+    })
+    .catch((error) => { res.status(500).json(error); });
+});
 
 /*****************************************************************************************/
 /************************************* USER'S API ****************************************/

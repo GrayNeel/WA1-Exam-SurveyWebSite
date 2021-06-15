@@ -107,3 +107,18 @@ exports.incrementAnswersNum = (surveyId, answersNumber) => {
         });
     });
 }
+
+exports.getAllAnswersBySurveyId = (surveyId, userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM answers A, surveys S WHERE A.surveyId = ? AND userId = ? AND A.surveyId = S.surveyId';
+        db.all(sql, [surveyId, userId], (err, rows) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            const answers = rows.map((a) => ({name: a.name, answers: JSON.parse(a.answers)}));
+            resolve(answers);
+        });
+    });
+}
