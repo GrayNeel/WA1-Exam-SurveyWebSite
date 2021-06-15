@@ -48,6 +48,17 @@ async function addNewAnswer(answer) {
     });
 }
 
+async function getAvailableSurveysLogged() {
+    const response = await fetch('/api/surveys/my');
+    if (response.ok) {
+        const surveys = await response.json();
+        return surveys;
+    }
+    else {
+        return { 'err': 'GET error' };
+    }
+}
+
 /*********************************** USER'S SESSION API *********************************************/
 
 async function logIn(credentials) {
@@ -87,7 +98,7 @@ async function getUserInfo() {
     }
 }
 
-const API = { getAvailableSurveys, getSurveyById, addNewSurvey, addNewAnswer, logIn, logOut, getUserInfo };
+const API = { getAvailableSurveys, getAvailableSurveysLogged, getSurveyById, addNewSurvey, addNewAnswer, logIn, logOut, getUserInfo };
 
 
 export default API;
