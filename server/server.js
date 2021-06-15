@@ -221,6 +221,7 @@ app.post('/api/surveys/answer',
      */
     let checkAnswers = (survey) => {
       let questions = survey["questions"];
+      let verified = true;
 
       questions.forEach(q => {
         let answer = answers.filter(a => (a.questionId === q.questionId));
@@ -229,18 +230,19 @@ app.post('/api/surveys/answer',
         if (q.mandatory !== undefined) {
           /** Check if answers to open question is mandatory and user answered it */
           if ((answer[0] === undefined || answer[0].openAnswer === undefined || answer[0].openAnswer.length === 0) && q.mandatory === 1) {
-            return false;
+            verified = false;
           }
         } else {
           //multiple choice question
           /** Check if answers to multiple question is mandatory and user answered it */
           if ((answer[0] === undefined || answer[0].selOptions === undefined) && q.min > 0)
-            return false;
+            verified = false;
 
           let ansNum = Object.entries(answer[0].selOptions).length;
 
-          if (ansNum > q.max || ansNum < q.min)
-            return false;
+          if (ansNum > q.max || ansNum < q.min) {
+            verified = false;
+          }
         }
 
       });
