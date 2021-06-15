@@ -13,6 +13,9 @@ GET http://localhost:3001/api/surveys?id=12sada2
 ### Unknown route
 GET http://localhost:3001/api/notavalidapi
 
+### Get all the surveys (and answers count) of a registered user (loggedin Only)
+GET http://localhost:3001/api/surveys/my
+
 ### New survey from registered user
 POST http://localhost:3001/api/surveys/new
 Content-Type: application/json
@@ -118,3 +121,30 @@ Content-Type: application/json
         }
     ]
 }
+
+### New answer from unregistered user with no name to survey 2 (should fail)
+POST http://localhost:3001/api/surveys/answer?id=2
+Content-Type: application/json
+
+{
+    "name": "",
+    "answers": [
+        {
+            "questionId": 1,
+            "selOptions": [
+                1
+            ]
+        },
+        {
+            "questionId": 2,
+            "openAnswer": "Don't know"
+        },
+        {
+            "questionId": 3,
+            "selOptions": [
+                1
+            ]
+        }
+    ]
+}
+

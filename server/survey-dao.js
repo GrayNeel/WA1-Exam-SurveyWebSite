@@ -20,7 +20,21 @@ exports.getAllSurveysTitle = () => {
             resolve(surveys);
         })
     })
-}
+};
+
+exports.getAllSurveysTitleById = (id) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT surveyId, title, answersNumber FROM surveys WHERE userId = ?';
+        db.all(sql, [id], (err, rows) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            const surveys = rows.map((s) => ({surveyId: s.surveyId, title: s.title, answersNumber: s.answersNumber}));
+            resolve(surveys);
+        })
+    })
+};
 
 exports.getSurveyById = (surveyId) => {
     return new Promise((resolve, reject) => {
@@ -79,3 +93,17 @@ exports.addAnswer = (surveyId, name, answers) => {
         });
     });
 };
+
+exports.incrementAnswersNum = (surveyId, answersNumber) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'UPDATE surveys SET answersNumber = ? WHERE surveyId = ?';
+        db.all(sql, [answersNumber, surveyId], (err) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            resolve();
+        });
+    });
+}

@@ -99,6 +99,23 @@ app.get('/api/surveys/all', (req, res) => {
     .catch((error) => { res.status(500).json(error); });
 });
 
+/** Show all available surveys of a logged user admin */
+//TODO: Make it loggedIn Only
+app.get('/api/surveys/my', (req, res) => {
+  //TODO: uncomment this when isLoggedin only
+  //let userId = req.user.id;
+  let userId = 0;
+
+  surveyDao.getAllSurveysTitleById(userId)
+    .then((surveys) => {
+      if (Object.entries(surveys).length === 0)
+        res.status(404).json({ surveyId: this.id, error: "No surveys with given id" });
+      else
+        res.json(surveys);
+    })
+    .catch((error) => { res.status(500).json(error); });
+});
+
 /** Search a survey through its ID for unregistered users */
 app.get('/api/surveys', (req, res) => {
   const id = req.query.id;
@@ -236,8 +253,14 @@ app.post('/api/surveys/answer',
         else {
           /** Check if mandatory answers are given from user */
           if (checkAnswers(survey)) {
-            surveyDao.addAnswer(id, name, answers).then(() => { res.end(); })
-               .catch((error) => { res.status(500).json(error); });
+            /** Add answer to database */
+            surveyDao.addAnswer(id, name, answers).then(() => {
+              /** Increment number of answers to that survey */
+              survey.answersNumber++;
+              surveyDao.incrementAnswersNum(id, survey.answersNumber);
+              res.end();
+            })
+              .catch((error) => { res.status(500).json(error); });
           }
         }
       })
