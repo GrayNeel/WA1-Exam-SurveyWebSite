@@ -38,6 +38,16 @@ async function addNewSurvey(survey) {
     }
 };
 
+async function addNewAnswer(answer) {
+    const response = await fetch('api/surveys/answer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(answer)
+    });
+}
+
 /*********************************** USER'S SESSION API *********************************************/
 
 async function logIn(credentials) {
@@ -77,7 +87,7 @@ async function getUserInfo() {
     }
 }
 
-const API = { getAvailableSurveys, getSurveyById, addNewSurvey, logIn, logOut, getUserInfo };
+const API = { getAvailableSurveys, getSurveyById, addNewSurvey, addNewAnswer, logIn, logOut, getUserInfo };
 
 
 export default API;
