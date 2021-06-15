@@ -221,28 +221,30 @@ app.post('/api/surveys/answer',
      */
     let checkAnswers = (survey) => {
       let questions = survey["questions"];
-      let verified = true;
 
       questions.forEach(q => {
+        let answer = answers.filter(a => (a.questionId === q.questionId));
+
         //open question
         if (q.mandatory !== undefined) {
-          let answer = answers.filter(a => (a.questionId === q.questionId));
           /** Check if answers to open question is mandatory and user answered it */
-          if ((answer[0] === undefined || answer[0].openAnswer.length === 0) && q.mandatory === 1) {
-            verified = false;
+          if ((answer[0] === undefined || answer[0].openAnswer === undefined || answer[0].openAnswer.length === 0) && q.mandatory === 1) {
+            return false;
           }
         } else {
           //multiple choice question
-          let answer = answers.filter(a => (a.questionId === q.questionId));
           /** Check if answers to multiple question is mandatory and user answered it */
-          if (q.min > 0) {
-            if ((answer[0] === undefined || Object.entries(answer[0].selOptions).length < q.min || Object.entries(answer[0].selOptions).length > q.max)) {
-              verified = false;
-            }
-          }
+          if ((answer[0] === undefined || answer[0].selOptions === undefined) && q.min > 0)
+            return false;
+
+          let ansNum = Object.entries(answer[0].selOptions).length;
+
+          if (ansNum > q.max || ansNum < q.min)
+            return false;
         }
 
       });
+
       return verified;
     }
 
@@ -261,6 +263,8 @@ app.post('/api/surveys/answer',
               res.end();
             })
               .catch((error) => { res.status(500).json(error); });
+          } else {
+            res.status(400).json("Invalid answers given");
           }
         }
       })
