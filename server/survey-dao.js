@@ -25,13 +25,15 @@ exports.getAllSurveysTitle = () => {
 exports.getSurveyById = (surveyId) => {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM surveys WHERE surveyId = ?';
-        db.all(sql, [surveyId], (err, row) => {
+        db.get(sql, [surveyId], (err, row) => {
             if (err) {
                 reject(err);
                 return;
             }
-            const survey = row.map((s) => ({ surveyId: s.surveyId, userId: s.userId, title: s.title, questions: JSON.parse(s.questions)}));
-            resolve(survey);
+            /** Row is already an object, but the "question" DB column is a string. So, it needs to be parsed */
+            if(row !== undefined)
+                row.questions = JSON.parse(row.questions);
+            resolve(row);
         });
     });
     
@@ -60,6 +62,20 @@ exports.getLastSurveyId = () => {
                 return;
             }
             resolve(row[0].lastid);
+        });
+    });
+};
+
+exports.addAnswer = (surveyId, name, answers) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO answers(surveyId, name, answers) VALUES(?, ?, ?)';
+        db.all(sql, [surveyId, name, JSON.stringify(answers)], (err) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            resolve();
         });
     });
 };

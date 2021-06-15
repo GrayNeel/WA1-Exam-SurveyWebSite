@@ -92,3 +92,29 @@ Content-Type: application/json
         
     ]
 }
+
+### New answer from unregistered user to survey 2
+POST http://localhost:3001/api/surveys/answer?id=2
+Content-Type: application/json
+
+{
+    "name": "Mark",
+    "answers": [
+        {
+            "questionId": 1,
+            "selOptions": [
+                1
+            ]
+        },
+        {
+            "questionId": 2,
+            "openAnswer": "Don't know"
+        },
+        {
+            "questionId": 3,
+            "selOptions": [
+                1
+            ]
+        }
+    ]
+}

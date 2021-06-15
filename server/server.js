@@ -5,6 +5,8 @@ const express = require('express');
 const morgan = require('morgan');
 /* This is a middleware that handles "session" (user) */
 const session = require('express-session');
+/** Express validator middleware */
+const { body, validationResult, check } = require('express-validator');
 
 /* Init express */
 const app = new express();
@@ -116,86 +118,131 @@ app.get('/api/surveys', (req, res) => {
 
 /** Add a new survey received from a registered user */
 //TODO: make it loggedIn only!!
-app.post('/api/surveys/new', (req, res) => {
-  let surveyTitle = req.body.title;
-  let questions = req.body.questions;
+app.post('/api/surveys/new',
+  body('title').isLength({ min: 1 }),
+  body('questions').not().isEmpty(), (req, res) => {
+    let surveyTitle = req.body.title;
+    let questions = req.body.questions;
 
-  //TODO: uncomment this when isLoggedin only
-  //let userId = req.user.id;
-  let userId = 0;
+    //TODO: uncomment this when isLoggedin only
+    //let userId = req.user.id;
+    let userId = 0;
 
-  if (surveyTitle === undefined || surveyTitle.length === 0 || questions === undefined || Object.entries(questions).length === 0) {
-    res.status(500).json("Invalid survey");
-    return;
-  }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  /** Functions that adds IDs to questions and eventually to options. It will be called in the getLastSurveyId promise */
-  let mapQuestions = (id) => {
-    let count = 1;
+    /** Functions that adds IDs to questions and eventually to options. It will be called in the getLastSurveyId promise */
+    let mapQuestions = (id) => {
+      let count = 1;
 
-    /** Add questionId, surveyId to questions */
-    questions = questions.map((q) => ({
-      questionId: count++,
-      surveyId: id,
-      title: q.title,
-      min: q.min,
-      max: q.max,
-      options: q.options,
-      mandatory: q.mandatory
-    }));
+      /** Add questionId, surveyId to questions */
+      questions = questions.map((q) => ({
+        questionId: count++,
+        surveyId: id,
+        ...q
+        // title: q.title,
+        // min: q.min,
+        // max: q.max,
+        // options: q.options,
+        // mandatory: q.mandatory
+      }));
 
-    /** Add optionId, surveyId and questionId */
-    questions.forEach((q) => {
-      if (q.options !== undefined) {
-        count = 1;
-        q.options = q.options.map((o) => ({
-          optionId: count++,
-          surveyId: id,
-          questionId: q.questionId,
-          text: o.text
-        }));
-      }
-    });
+      /** Add optionId, surveyId and questionId */
+      questions.forEach((q) => {
+        if (q.options !== undefined) {
+          count = 1;
+          q.options = q.options.map((o) => ({
+            optionId: count++,
+            surveyId: id,
+            questionId: q.questionId,
+            text: o.text
+          }));
+        }
+      });
 
-    /** Then, add survey to DB */
-    surveyDao.addSurvey(id, userId, surveyTitle, questions)
-      .then(() => res.end())
+      /** Then, add survey to DB */
+      surveyDao.addSurvey(id, userId, surveyTitle, questions)
+        .then(() => res.end())
+        .catch((error) => { res.status(500).json(error); });
+    }
+
+    /* Get last surveyId in database */
+    surveyDao.getLastSurveyId()
+      .then((id) => {
+        /** Call the callback function defined before */
+        mapQuestions(id + 1);
+      })
       .catch((error) => { res.status(500).json(error); });
-  }
-
-  /* Get last surveyId in database */
-  surveyDao.getLastSurveyId()
-    .then((id) => {
-      /** Call the callback function defined before */
-      mapQuestions(id + 1);
-    })
-    .catch((error) => { res.status(500).json(error); });
 
 
-});
+  });
 
 /** Add new answer to database, but first check validity */
-app.post('/api/surveys/answer', (req, res) => {
-  //surveys/answer?id=1
-  const id = req.query.id;
+app.post('/api/surveys/answer',
+  check('id').isNumeric(),
+  body('name').isLength({ min: 1 }),
+  body('answers').not().isEmpty(), (req, res) => {
+    //surveys/answer?id=1
+    const id = req.query.id;
+    const name = req.body.name;
+    const answers = req.body.answers;
 
-  /** This function will be called inside the promise of the getSurveyById query
-   * It checks the validity of answers, then add to dabtabase
-   */
-  let checkAnswers = (survey) => {
-    //TODO: check validity of answers that are in the body, then add to database
-  }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  surveyDao.getSurveyById(id)
+    // if (Object.entries(answers).length === 0) {
+    //   res.status(400).json("Not enough answers");
+    //   return;
+    // }
+
+    /** This function will be called inside the promise of the getSurveyById query
+     * It checks the validity of answers, then add to dabtabase
+     */
+    let checkAnswers = (survey) => {
+      let questions = survey["questions"];
+      let verified = true;
+
+      questions.forEach(q => {
+        //open question
+        if (q.mandatory !== undefined) {
+          let answer = answers.filter(a => (a.questionId === q.questionId));
+          /** Check if answers to open question is mandatory and user answered it */
+          if ((answer[0] === undefined || answer[0].openAnswer.length === 0) && q.mandatory === 1) {
+            verified = false;
+          }
+        } else {
+          //multiple choice question
+          let answer = answers.filter(a => (a.questionId === q.questionId));
+          /** Check if answers to multiple question is mandatory and user answered it */
+          if (q.min > 0) {
+            if ((answer[0] === undefined || Object.entries(answer[0].selOptions).length < q.min)) {
+              verified = false;
+            }
+          }
+        }
+
+      });
+      return verified;
+    }
+
+    surveyDao.getSurveyById(id)
       .then((survey) => {
         if (Object.entries(survey).length === 0)
           res.status(404).json({ surveyId: this.id, error: "No survey with given id" });
         else {
-          checkAnswers(survey);
+          /** Check if mandatory answers are given from user */
+          if (checkAnswers(survey)) {
+            surveyDao.addAnswer(id, name, answers).then(() => { res.end(); })
+               .catch((error) => { res.status(500).json(error); });
+          }
         }
       })
       .catch((error) => { res.status(500).json(error); });
-});
+  });
 
 /*****************************************************************************************/
 /************************************* USER'S API ****************************************/
