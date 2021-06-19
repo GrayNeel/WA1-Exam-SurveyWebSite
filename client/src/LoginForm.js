@@ -31,7 +31,7 @@ function LoginForm(props) {
             <Container>
             <Row className="justify-content-md-center mt-5 pt-5 ml-3">
                 <Card
-                    bg={'info'}
+                    bg={'dark'}
                     key={1}
                     text={'white'}
                     style={{ width: '18rem' }}

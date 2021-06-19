@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 function SurveyNavbar(props) {
     return (
         <>
-            <Navbar bg="info" variant="dark" expand="lg" className="justify-content-between">
+            <Navbar bg="dark" variant="dark" expand="lg" className="justify-content-between">
                 <Navbar.Brand href="/" className="d-inline-block align-top">
                     GraySurvey
                 </Navbar.Brand>

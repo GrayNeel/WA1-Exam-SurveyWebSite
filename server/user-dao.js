@@ -4,7 +4,7 @@ const sqlite = require('sqlite3');
 const bcrypt = require('bcrypt');
 
 // open the database
-const db = new sqlite.Database('survey.db', (err) => {
+const db = new sqlite.Database('./server/survey.db', (err) => {
     if (err) throw err;
 });
 

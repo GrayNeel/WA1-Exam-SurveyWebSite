@@ -1,7 +1,9 @@
-import logo from './logo.svg';
 import './App.css';
 import SurveyNavbar from './SurveyNavbar';
-import { LoginForm, LogoutButton } from './LoginForm';
+import { LoginForm } from './LoginForm';
+import AdminContent from './AdminContent';
+import UserContent from './UserContent';
+import DoSurvey from './DoSurvey';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
@@ -13,6 +15,7 @@ function App() {
   /* User info */
   const [loggedIn, setLoggedIn] = useState(false); // at the beginning, no user is logged in
   const [message, setMessage] = useState('');      // so no message is shown
+  const [loading, setLoading] = useState(true);
 
   /** Ask server if user is logged in everytime the page is mounted. This information is stored in the cookie of the session */
   useEffect(() => {
@@ -31,7 +34,7 @@ function App() {
       setMessage({ msg: `Welcome back, ${user}!`, type: 'success' }); 
     } catch (err) {
       setMessage({ msg: err, type: 'danger' });
-      throw new Error("Incorrect username and/or password");
+      throw "Incorrect username and/or password";
     }
   }
 
@@ -44,15 +47,42 @@ function App() {
   }
 
   /**********************************************************************************************************************/
+  const [surveys, setSurveys] = useState([]); 
+    //Rehydrate tasks at mount time
+    useEffect(() => {
+      if (!loggedIn) {
+        API.getAvailableSurveys().then(newS => {
+          setSurveys(newS);
+          setLoading(false);
+        }).catch(err => {
+          console.log(err);
+          setSurveys([]);
+          setLoading(false);
+        });
+      }
+  
+    }, [loggedIn]);
 
   return (
     <Router>
+      <div style={{backgroundColor: "#68717a"}} className="row-height">
       <SurveyNavbar message={message} logout={doLogOut} loggedIn={loggedIn} />
       <Container fluid>
         <Route exact path="/login">
           <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
         </Route>
+
+        <Route exact path="/">
+        <>{loggedIn ? <AdminContent surveys={surveys}/> : <UserContent surveys={surveys}/>}</>
+        </Route>
+
+        <Route path="/survey/:surveyId" render={({match}) => 
+          <>
+            {loggedIn ? <Redirect to="/"/> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} setLoading={setLoading}/>}
+          </>
+        }/>
       </Container>
+      </div>
     </Router>
   );
 }
