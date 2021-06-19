@@ -46,7 +46,7 @@ passport.serializeUser((user, done) => {
 // This is so powerful because now we can access data stored in the db for the current user, simply writing req.user
 // I have to write another api to make frontend able to user the same information: this api is app.get('/api/sessions/current')
 passport.deserializeUser((id, done) => {
-  user_dao.getUserById(id)
+  userDao.getUserById(id)
     .then(user => {
       done(null, user); // this will be available in req.user
     }).catch(err => {

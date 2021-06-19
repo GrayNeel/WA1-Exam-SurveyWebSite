@@ -1,7 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
+import SurveyNavbar from './SurveyNavbar';
+import { LoginForm, LogoutButton } from './LoginForm';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Container } from 'react-bootstrap';
 import API from './API.js';
 
 function App() {
@@ -15,7 +18,7 @@ function App() {
   useEffect(() => {
     API.getUserInfo().then(user => {
       setLoggedIn(true);
-      setMessage({ msg: `Welcome, ${user.name}!`, type: 'success' });  // Set it again here because otherwise when F5 the message created from LogIn disappears
+      setMessage({ msg: `Welcome back, ${user.name}!`, type: 'success' });  // Set it again here because otherwise when F5 the message created from LogIn disappears
     }).catch(error => {
       setLoggedIn(false);  // No logged user
     });
@@ -25,10 +28,10 @@ function App() {
     try {
       const user = await API.logIn(credentials);
       setLoggedIn(true);
-      setMessage({ msg: `Welcome, ${user.name}!`, type: 'success' });
+      setMessage({ msg: `Welcome back, ${user}!`, type: 'success' }); 
     } catch (err) {
       setMessage({ msg: err, type: 'danger' });
-      throw "Incorrect username and/or password";
+      throw new Error("Incorrect username and/or password");
     }
   }
 
@@ -43,22 +46,14 @@ function App() {
   /**********************************************************************************************************************/
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          {loggedIn ? message : "Not logged in"}
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <SurveyNavbar message={message} logout={doLogOut} loggedIn={loggedIn} />
+      <Container fluid>
+        <Route exact path="/login">
+          <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
+        </Route>
+      </Container>
+    </Router>
   );
 }
 
