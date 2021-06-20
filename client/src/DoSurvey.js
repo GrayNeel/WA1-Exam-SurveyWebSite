@@ -5,6 +5,7 @@ import API from './API.js';
 function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [name, setName] = useState('');
 
   useEffect(() => {
     if (!props.loggedIn) {
@@ -27,12 +28,12 @@ function DoSurvey(props) {
         :
         loading === true ? <></> :
           <Container>
+            <SurveyTitle title={survey.title} />
             <Row className="justify-content-center">
-              <SurveyTitle title={survey.title} />
               <Col className="col-md-auto rounded mt-2">
-                <NameBox />
-                <QuestionsList loading={loading} questions={survey.questions} />
-                <EndingButtons />
+                <NameBox name={name} setName={setName} />
+                {name.length > 0 ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
+                <EndingButtons name={name} />
               </Col>
             </Row>
           </Container >
@@ -49,7 +50,7 @@ function NameBox(props) {
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
           <h3>Insert your name</h3>
           <Form>
-            <Form.Control type="text" placeholder="Insert name here" />
+            <Form.Control type="text" placeholder="Insert name here" onChange={td => props.setName(td.target.value)} />
           </Form>
         </Col>
       </Row>
@@ -74,7 +75,7 @@ function EndingButtons(props) {
   return (
     <div className="d-flex justify-content-between mt-4">
       <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
-      <Button variant="outline-light">Send Answers</Button>
+      {props.name.length > 0 ? <Button variant="outline-light">Send Answers</Button> : <></>}
     </div>
   );
 }
@@ -82,7 +83,9 @@ function EndingButtons(props) {
 function SurveyTitle(props) {
   return (
     <>
-      <h1 className="text-white mt-2">{props.title}</h1>
+      <Row className="justify-content-center">
+        <h1 className="text-white mt-2">{props.title}</h1>
+      </Row>
     </>
   );
 }
@@ -90,17 +93,20 @@ function SurveyTitle(props) {
 function QuestionsList(props) {
   return (
     <>
-      {(props.loading === false) && props.questions ? props.questions.map(question =>
-        <Question
-          key={question.questionId}
-          title={question.title}
-          min={question.min}
-          max={question.max}
-          options={question.options}
-          mandatory={question.mandatory}
-        />
-      ) : <></>
-      }
+      <Form>
+        {(props.loading === false) && props.questions ? props.questions.map(question =>
+          <Question
+            key={question.questionId}
+            questionId={question.questionId}
+            title={question.title}
+            min={question.min}
+            max={question.max}
+            options={question.options}
+            mandatory={question.mandatory}
+          />
+        ) : <></>
+        }
+      </Form>
     </>
   );
 }
@@ -112,9 +118,9 @@ function Question(props) {
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
           <h3>{props.title}</h3>
           {props.mandatory !== undefined ?
-            <OpenQuestion mandatory={props.mandatory} />
+            <OpenQuestion mandatory={props.mandatory} questionId={props.questionId}/>
             :
-            <ClosedQuestion min={props.min} max={props.max} options={props.options} />
+            <ClosedQuestion min={props.min} max={props.max} options={props.options} questionId={props.questionId}/>
           }
         </Col>
       </Row>
@@ -123,13 +129,12 @@ function Question(props) {
 }
 
 function OpenQuestion(props) {
+  const [openAnswer, setOpenAnswer] = useState('');
   return (
-    <Form>
-      <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-        <Form.Label>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
-        <Form.Control as="textarea" rows={5} />
+      <Form.Group className="mb-3" controlId={props.questionId}>
+        <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
+        <Form.Control as="textarea" rows={5} onChange={td => setOpenAnswer(td.target.value)} />
       </Form.Group>
-    </Form>
   );
 }
 
@@ -138,7 +143,7 @@ function ClosedQuestion(props) {
     <>
       {props.max === 1 ?
         <>
-          <Form className="ml-3">
+          <Form.Group className="ml-3" controlId={props.questionId}>
             <br></br>
             {props.options.map(option =>
               <Form.Check
@@ -149,26 +154,23 @@ function ClosedQuestion(props) {
                 label={option.text}
               />
             )}
-          </Form>
-          <br></br>
-          <span className="text-monospace" style={{fontSize: "12px"}}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
+          </Form.Group>
+          <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
         </>
         :
         <>
-          <Form className="ml-3">
+          <Form.Group className="ml-3">
             <br></br>
             {props.options.map(option =>
               <Form.Check
                 type={'checkbox'}
                 key={option.optionId}
                 id={option.optionId}
-                name={option.questionId}
                 label={option.text}
               />
             )}
-          </Form>
-          <br></br>
-          <span className="text-monospace" style={{fontSize: "12px"}}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
+          </Form.Group>
+          <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
         </>
       }
     </>
