@@ -100,11 +100,8 @@ app.get('/api/surveys/all', (req, res) => {
 });
 
 /** Show all available surveys of a logged user admin */
-//TODO: Make it loggedIn Only
-app.get('/api/surveys/my', (req, res) => {
-  //TODO: uncomment this when isLoggedin only
-  //let userId = req.user.id;
-  let userId = 0;
+app.get('/api/surveys/my', isLoggedIn, (req, res) => {
+  let userId = req.user.id;
 
   surveyDao.getAllSurveysTitleById(userId)
     .then((surveys) => {
@@ -134,15 +131,13 @@ app.get('/api/surveys', (req, res) => {
 });
 
 /** Add a new survey received from a registered user */
-//TODO: make it loggedIn only!!
-app.post('/api/surveys/new',
+app.post('/api/surveys/new', isLoggedIn,
   body('title').isLength({ min: 1 }),
   body('questions').not().isEmpty(), (req, res) => {
     let surveyTitle = req.body.title;
     let questions = req.body.questions;
 
-    //TODO: uncomment this when isLoggedin only
-    //let userId = req.user.id;
+    let userId = req.user.id;
     let userId = 0;
 
     const errors = validationResult(req);
@@ -274,11 +269,8 @@ app.post('/api/surveys/answer',
   });
 
 /** Show all available answers of a survey */
-//TODO: Make it loggedIn Only
-app.get('/api/surveys/get/answers', (req, res) => {
-  //TODO: uncomment this when isLoggedin only
-  //let userId = req.user.id;
-  let userId = 0;
+app.get('/api/surveys/get/answers', isLoggedIn, (req, res) => {
+  let userId = req.user.id;
   ///api/surveys/get/answers?id=1
   const surveyId = req.query.id;
 
