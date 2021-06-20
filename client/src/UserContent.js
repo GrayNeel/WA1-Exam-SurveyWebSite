@@ -1,16 +1,38 @@
 import { Container, Col, Row } from 'react-bootstrap';
 
+import { useEffect, useState } from 'react';
+import API from './API.js';
+
 function UserContent(props) {
+    const [surveys, setSurveys] = useState([]);
+    const [loading, setLoading] = useState(true);
+    //Rehydrate surveys at mount time
+    useEffect(() => {
+        if (!props.loggedIn) {
+            API.getAvailableSurveys().then(newS => {
+                setSurveys(newS);
+                setLoading(false);
+            }).catch(err => {
+                console.log(err);
+                setSurveys([]);
+                setLoading(false);
+            });
+        }
+
+    }, [props.loggedIn]);
+
     return (
         <>
-            <Container>
-                <Title />
-                <Row className="justify-content-center">
-                    <Col className="col-md-auto bg-light rounded mt-2 ">
-                    <SurveyTable surveys={props.surveys} setLoading={props.setLoading}/>
-                    </Col>
-                </Row>
-            </Container>
+            {loading === true ? <></> :
+                <Container>
+                    <Title />
+                    <Row className="justify-content-center">
+                        <Col className="col-md-auto bg-light rounded mt-2 ">
+                            <SurveyTable surveys={surveys} />
+                        </Col>
+                    </Row>
+                </Container>
+            }
         </>
     );
 }
@@ -25,7 +47,7 @@ function SurveyTable(props) {
     return (
         <>
             <Container className="rounded">
-                {props.surveys.map(survey => <SurveyRow key={survey.surveyId} surveyId={survey.surveyId} title={survey.title} setLoading={props.setLoading}/> )}
+                {props.surveys.map(survey => <SurveyRow key={survey.surveyId} surveyId={survey.surveyId} title={survey.title} />)}
             </Container>
         </>
     );
@@ -35,7 +57,7 @@ function SurveyRow(props) {
     return (
         <Row className="justify-content-center">
             <Col className="col-md-auto mt-4 mb-4 bg-secondary rounded-pill">
-                    <h2 className="text-white" style={{cursor: "pointer"}} onClick={e => {props.setLoading(true); window.location.href='/survey/'+props.surveyId;}}>{props.title}</h2>
+                <h2 className="text-white" style={{ cursor: "pointer" }} onClick={e => { window.location.href = '/survey/' + props.surveyId; }}>{props.title}</h2>
             </Col>
         </Row>
     );

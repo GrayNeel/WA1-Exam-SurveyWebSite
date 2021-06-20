@@ -4,37 +4,38 @@ import API from './API.js';
 
 function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!props.loggedIn) {
       API.getSurveyById(props.surveyId).then(newS => {
         setSurvey(newS);
-        props.setLoading(false);
+        setLoading(false);
       }).catch(err => {
         console.log(err);
         setSurvey(undefined);
-        props.setLoading(false);
+        setLoading(false);
       });
     }
 
   }, [props.loggedIn]); //put also "props" because console signal a warning
-  console.log(props.loading);
+
   return (
     <>
       {survey.err ?
-        <NotFound setLoading={props.setLoading} />
+        <NotFound setLoading={setLoading} />
         :
-        props.loading===true ? <></> : 
-        <Container>
-          <Row className="justify-content-center">
-            <SurveyTitle title={survey.title} />
-            <Col className="col-md-auto rounded mt-2">
-              <NameBox />
-              <QuestionsList loading={props.loading} questions={survey.questions} />
-              <EndingButtons setLoading={props.setLoading} />
-            </Col>
-          </Row>
-        </Container >
+        loading === true ? <></> :
+          <Container>
+            <Row className="justify-content-center">
+              <SurveyTitle title={survey.title} />
+              <Col className="col-md-auto rounded mt-2">
+                <NameBox />
+                <QuestionsList loading={loading} questions={survey.questions} />
+                <EndingButtons />
+              </Col>
+            </Row>
+          </Container >
       }
 
     </>
@@ -63,7 +64,7 @@ function NotFound(props) {
         <h1 className="text-white mt-2">404: NOT FOUND</h1>
       </Row>
       <Row className="justify-content-center">
-        <Button variant="outline-light" onClick={e => { props.setLoading(true); window.location.href = '/'; }}>Back to surveys</Button>
+        <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
       </Row>
     </>
   );
@@ -72,7 +73,7 @@ function NotFound(props) {
 function EndingButtons(props) {
   return (
     <div className="d-flex justify-content-between mt-4">
-      <Button variant="outline-light" onClick={e => { props.setLoading(true); window.location.href = '/'; }}>Back to surveys</Button>
+      <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
       <Button variant="outline-light">Send Answers</Button>
     </div>
   );
@@ -89,7 +90,7 @@ function SurveyTitle(props) {
 function QuestionsList(props) {
   return (
     <>
-      {(props.loading===false) && props.questions ? props.questions.map(question =>
+      {(props.loading === false) && props.questions ? props.questions.map(question =>
         <Question
           key={question.questionId}
           title={question.title}
@@ -125,7 +126,7 @@ function OpenQuestion(props) {
   return (
     <Form>
       <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-        <Form.Label>{props.mandatory===1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
+        <Form.Label>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
         <Form.Control as="textarea" rows={5} />
       </Form.Group>
     </Form>
@@ -136,27 +137,39 @@ function ClosedQuestion(props) {
   return (
     <>
       {props.max === 1 ?
-        <Form className="ml-3">
-          {props.options.map(option =>
-            <Form.Check
-              type={'radio'}
-              key={option.optionId}
-              id={option.optionId}
-              label={option.text}
-            />
-          )}
-        </Form>
+        <>
+          <Form className="ml-3">
+            <br></br>
+            {props.options.map(option =>
+              <Form.Check
+                type={'radio'}
+                key={option.optionId}
+                id={option.optionId}
+                name={option.questionId}
+                label={option.text}
+              />
+            )}
+          </Form>
+          <br></br>
+          <span className="text-monospace" style={{fontSize: "12px"}}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
+        </>
         :
-        <Form className="ml-3">
-          {props.options.map(option =>
-            <Form.Check
-              type={'checkbox'}
-              key={option.optionId}
-              id={option.optionId}
-              label={option.text}
-            />
-          )}
-        </Form>
+        <>
+          <Form className="ml-3">
+            <br></br>
+            {props.options.map(option =>
+              <Form.Check
+                type={'checkbox'}
+                key={option.optionId}
+                id={option.optionId}
+                name={option.questionId}
+                label={option.text}
+              />
+            )}
+          </Form>
+          <br></br>
+          <span className="text-monospace" style={{fontSize: "12px"}}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
+        </>
       }
     </>
   );
