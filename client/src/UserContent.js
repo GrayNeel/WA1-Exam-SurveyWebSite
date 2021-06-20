@@ -1,4 +1,4 @@
-import { Container, Col, Row } from 'react-bootstrap';
+import { Container, Col, Row, Button } from 'react-bootstrap';
 import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import API from './API.js';
@@ -27,7 +27,7 @@ function UserContent(props) {
                 <Container>
                     <Title />
                     <Row className="justify-content-center">
-                        <Col className="col-md-auto bg-light rounded mt-2 ">
+                        <Col className="col-md-auto rounded mt-2 ">
                             <SurveyTable surveys={surveys} />
                         </Col>
                     </Row>
@@ -46,22 +46,25 @@ function Title(props) {
 function SurveyTable(props) {
     return (
         <>
-            <Container className="rounded">
-                {props.surveys.map(survey => <SurveyRow key={survey.surveyId} surveyId={survey.surveyId} title={survey.title} />)}
-            </Container>
+            {props.surveys.map(survey => <SurveyRow key={survey.surveyId} surveyId={survey.surveyId} title={survey.title} />)}
         </>
     );
 }
 
 function SurveyRow(props) {
     return (
-        <Row className="justify-content-center">
-            <Col className="col-md-auto mt-4 mb-4 bg-secondary rounded-pill">
-                <Link to={"/survey/" + props.surveyId} style={{ textDecoration: 'none' }}>
-                    <h2 className="text-white" style={{ cursor: "pointer" }} >{props.title}</h2>
-                </Link>
-            </Col>
-        </Row>
+        <Col className="col-md-auto bg-light rounded mt-2 mb-2">
+            <Row className="d-flex justify-content-md-center">
+                <Col className="col-md-auto mt-4 mb-4 rounded-pill">
+                        <h2>{props.title}</h2>
+                </Col>
+                <Col className="col-md-auto mt-4 mb-4 rounded-pill">
+                    <Link to={"/survey/" + props.surveyId} style={{ textDecoration: 'none' }}>
+                        <Button variant="secondary">Take the survey</Button>
+                    </Link>
+                </Col>
+            </Row>
+        </Col>
     );
 }
 
