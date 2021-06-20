@@ -6,9 +6,10 @@ import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-ro
 function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState('');
   const [alert, setAlert] = useState('');
   const [validated, setValidated] = useState(false);
+  const [name, setName] = useState('');
+  const [answers, setAnswers] = useState([]);
 
   useEffect(() => {
     if (!props.loggedIn) {
@@ -24,6 +25,46 @@ function DoSurvey(props) {
 
   }, [props.loggedIn]); //put also "props" because console signal a warning
 
+  const editOrAddOpenAnswer = (answer) => {
+    if (answers.length == 0) {
+      setAnswers([{ questionId: answer.questionId, openAnswer: answer.openAnswer }]);
+      return;
+    }
+
+    if (answers.find(o => o.questionId === answer.questionId) !== undefined) {
+      setAnswers(oldAnswers => {
+        return oldAnswers.map((as) => {
+          if (as.id === answer.id)
+            return { questionId: answer.questionId, openAnswer: answer.openAnswer };
+          else
+            return as;
+        });
+      })
+    } else {
+      setAnswers(oldAnswers => [...oldAnswers, answer]);
+    }
+  }
+
+  const editOrAddClosedAnswer = (answer) => {
+    if (answers.length == 0) {
+      setAnswers([{ questionId: answer.questionId, selOptions: answer.selOptions }]);
+      return;
+    }
+
+    if (answers.find(o => o.questionId === answer.questionId) !== undefined) {
+      setAnswers(oldAnswers => {
+        return oldAnswers.map((as) => {
+          if (as.id === answer.id)
+            return { questionId: answer.questionId, selOptions: answer.selOptions };
+          else
+            return as;
+        });
+      })
+    } else {
+      setAnswers(oldAnswers => [...oldAnswers, answer]);
+    }
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -33,8 +74,9 @@ function DoSurvey(props) {
       event.stopPropagation();
     }
     else {
-      //props.handleAddOrEdit();
-      console.log(form);
+      //API.addNewAnswer(answers, survey.surveyId);
+      const newName = { name: name };
+      console.log([newName, ...answers]);
     }
     setValidated(true);
 
@@ -52,7 +94,7 @@ function DoSurvey(props) {
               <Col className="col-md-auto rounded mt-2 mb-4">
                 <Form noValidate validated={validated} onSubmit={handleSubmit}>
                   <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert} />
-                  {(alert.length == 0 && name.length > 2) ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
+                  {(alert.length == 0 && name.length > 2) ? <QuestionsList loading={loading} questions={survey.questions} answers={answers} editOrAddOpenAnswer={editOrAddOpenAnswer} editOrAddClosedAnswer={editOrAddClosedAnswer} /> : <></>}
                   <EndingButtons name={name} alert={alert} />
                 </Form>
               </Col>
@@ -139,6 +181,9 @@ function QuestionsList(props) {
           max={question.max}
           options={question.options}
           mandatory={question.mandatory}
+          editOrAddOpenAnswer={props.editOrAddOpenAnswer}
+          editOrAddClosedAnswer={props.editOrAddClosedAnswer}
+          answers={props.answers}
         />
       ) : <></>
       }
@@ -153,9 +198,9 @@ function Question(props) {
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
           <h3>{props.title}</h3>
           {props.mandatory !== undefined ?
-            <OpenQuestion mandatory={props.mandatory} questionId={props.questionId} />
+            <OpenQuestion mandatory={props.mandatory} questionId={props.questionId} answers={props.answers} editOrAddOpenAnswer={props.editOrAddOpenAnswer} />
             :
-            <ClosedQuestion min={props.min} max={props.max} options={props.options} questionId={props.questionId} />
+            <ClosedQuestion min={props.min} max={props.max} options={props.options} questionId={props.questionId} answers={props.answers} editOrAddClosedAnswer={props.editOrAddClosedAnswer} />
           }
         </Col>
       </Row>
@@ -164,86 +209,69 @@ function Question(props) {
 }
 
 function OpenQuestion(props) {
-  const [openAnswer, setOpenAnswer] = useState('');
+  const actualAnswer = props.answers.find(o => o.questionId === props.questionId);
   return (
     <Form.Group className="mb-3" controlId={props.questionId}>
       <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
       {props.mandatory === 1 ?
-        <Form.Control as="textarea" rows={5} value={openAnswer} onChange={td => setOpenAnswer(td.target.value)} required />
+        <Form.Control as="textarea" rows={5} value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} required />
         :
-        <Form.Control as="textarea" rows={5} value={openAnswer} onChange={td => setOpenAnswer(td.target.value)} />
+        <Form.Control as="textarea" rows={5} value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} />
       }
     </Form.Group>
   );
 }
 
 function ClosedQuestion(props) {
+
+  const checkSingleAnswer = (checked, optionId, questionId) => {
+
+    const selQuestion = props.answers.find(o => o.questionId === props.questionId);
+
+    if (selQuestion === undefined && checked)
+      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
+    else {
+      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
+    }
+  }
+
   return (
     <>
       {props.max === 1 ?
         <>
-          {props.min === 1 ?
-            // Single answer required
-            <Form.Group className="ml-3" controlId={props.questionId}>
-              <br></br>
-              {props.options.map(option =>
-                <Form.Check
-                  type={'radio'}
-                  key={option.optionId}
-                  id={option.optionId}
-                  name={option.questionId}
-                  label={option.text}
-                  required
-                />
-              )}
-            </Form.Group>
-            :
-            // Single answer but not required
-            <Form.Group className="ml-3" controlId={props.questionId}>
-              <br></br>
-              {props.options.map(option =>
-                <Form.Check
-                  type={'radio'}
-                  key={option.optionId}
-                  id={option.optionId}
-                  name={option.questionId}
-                  label={option.text}
-                />
-              )}
-            </Form.Group>
-          }
+          <Form.Group className="ml-3" controlId={props.questionId}>
+            <br></br>
+            {props.options.map(option =>
+              <Form.Check
+                type={'radio'}
+                key={option.optionId}
+                id={option.optionId}
+                name={option.questionId}
+                label={option.text}
+                onClick={event => checkSingleAnswer(event.target.checked, option.optionId, option.questionId)}
+              // checked={props.answers.length != 0 ?
+              //   props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
+              //   :
+              //   false
+              // }
+              />
+            )}
+          </Form.Group>
           <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
         </>
         :
         <>
-          {props.min === 1 ?
-            // Multiple answers but at least one is required  
-            //TODO: make at least one required
-            <Form.Group className="ml-3" >
-              <br></br>
-              {props.options.map(option =>
-                <Form.Check
-                  type={'checkbox'}
-                  key={option.optionId}
-                  id={option.optionId}
-                  label={option.text}
-                />
-              )}
-            </Form.Group>
-            :
-            // Multiple answers none is required
-            <Form.Group className="ml-3">
-              <br></br>
-              {props.options.map(option =>
-                <Form.Check
-                  type={'checkbox'}
-                  key={option.optionId}
-                  id={option.optionId}
-                  label={option.text}
-                />
-              )}
-            </Form.Group>
-        }
+          <Form.Group className="ml-3">
+            <br></br>
+            {props.options.map(option =>
+              <Form.Check
+                type={'checkbox'}
+                key={option.optionId}
+                id={option.optionId}
+                label={option.text}
+              />
+            )}
+          </Form.Group>
           <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
         </>
       }
