@@ -18,18 +18,19 @@ function DoSurvey(props) {
     }
 
   }, [props.loggedIn]); //put also "props" because console signal a warning
-
+  console.log(props.loading);
   return (
     <>
       {survey.err ?
         <NotFound setLoading={props.setLoading} />
         :
+        props.loading===true ? <></> : 
         <Container>
           <Row className="justify-content-center">
             <SurveyTitle title={survey.title} />
             <Col className="col-md-auto rounded mt-2">
               <NameBox />
-              <QuestionsList questions={survey.questions} />
+              <QuestionsList loading={props.loading} questions={survey.questions} />
               <EndingButtons setLoading={props.setLoading} />
             </Col>
           </Row>
@@ -88,7 +89,7 @@ function SurveyTitle(props) {
 function QuestionsList(props) {
   return (
     <>
-      {props.questions ? props.questions.map(question =>
+      {(props.loading===false) && props.questions ? props.questions.map(question =>
         <Question
           key={question.questionId}
           title={question.title}
@@ -139,6 +140,7 @@ function ClosedQuestion(props) {
           {props.options.map(option =>
             <Form.Check
               type={'radio'}
+              key={option.optionId}
               id={option.optionId}
               label={option.text}
             />
@@ -149,6 +151,7 @@ function ClosedQuestion(props) {
           {props.options.map(option =>
             <Form.Check
               type={'checkbox'}
+              key={option.optionId}
               id={option.optionId}
               label={option.text}
             />

@@ -6,7 +6,7 @@ import UserContent from './UserContent';
 import DoSurvey from './DoSurvey';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Container, Row, Button } from 'react-bootstrap';
+import { Container, Row, Button, Modal } from 'react-bootstrap';
 import API from './API.js';
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
   /* User info */
   const [loggedIn, setLoggedIn] = useState(false); // at the beginning, no user is logged in
   const [message, setMessage] = useState('');      // so no message is shown
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   /** Ask server if user is logged in everytime the page is mounted. This information is stored in the cookie of the session */
   useEffect(() => {
@@ -45,7 +45,7 @@ function App() {
 
   /**********************************************************************************************************************/
   const [surveys, setSurveys] = useState([]);
-
+  
   //Rehydrate surveys at mount time
   useEffect(() => {
     if (!loggedIn) {
@@ -55,6 +55,7 @@ function App() {
       }).catch(err => {
         console.log(err);
         setSurveys([]);
+        setLoading(false);
       });
     }
 
@@ -64,6 +65,7 @@ function App() {
     <Router>
       <div style={{ backgroundColor: "#68717a" }} className="row-height">
         <SurveyNavbar message={message} logout={doLogOut} loggedIn={loggedIn} />
+        {loading ? <LoadingPage/> : 
         <Container fluid>
           <Switch>
             <Route exact path="/login">
@@ -71,12 +73,12 @@ function App() {
             </Route>
 
             <Route exact path="/">
-              <>{loggedIn ? <AdminContent surveys={surveys} /> : <UserContent surveys={surveys} />}</>
+              <>{loggedIn ? <AdminContent surveys={surveys} /> : <UserContent surveys={surveys} setLoading={setLoading}/>}</>
             </Route>
 
             <Route path="/survey/:surveyId" render={({ match }) =>
               <>
-                {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} setLoading={setLoading} />}
+                {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} loading={loading} setLoading={setLoading} />}
               </>
             } />
 
@@ -84,7 +86,7 @@ function App() {
             <Redirect to="/404" />
           </Switch>
         </Container>
-
+      }
       </div>
     </Router>
   );
@@ -100,6 +102,14 @@ function NotFound(props) {
         <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
       </Row>
     </>
+  );
+}
+
+function LoadingPage(props) {
+  return (
+    <Modal>
+        
+      </Modal>
   );
 }
 
