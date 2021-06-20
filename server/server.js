@@ -138,7 +138,6 @@ app.post('/api/surveys/new', isLoggedIn,
     let questions = req.body.questions;
 
     let userId = req.user.id;
-    let userId = 0;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
