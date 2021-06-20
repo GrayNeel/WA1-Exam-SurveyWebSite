@@ -1,5 +1,3 @@
-'use strict';
-
 async function getAvailableSurveys() {
     const response = await fetch('/api/surveys/all');
     if (response.ok) {
@@ -39,7 +37,7 @@ async function addNewSurvey(survey) {
 };
 
 async function addNewAnswer(answer) {
-    const response = await fetch('api/surveys/answer', {
+    await fetch('api/surveys/answer', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

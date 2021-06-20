@@ -2,7 +2,7 @@
 GET http://localhost:3001/api/surveys/all
 
 ### Search existing survey by ID
-GET http://localhost:3001/api/surveys?id=1
+GET http://localhost:3001/api/surveys?id=3
 
 ### Search unexisting survey by ID
 GET http://localhost:3001/api/surveys?id=1222

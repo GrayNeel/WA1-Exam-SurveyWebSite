@@ -35,7 +35,7 @@ function SurveyRow(props) {
     return (
         <Row className="justify-content-center">
             <Col className="col-md-auto mt-4 mb-4 bg-secondary rounded-pill">
-                    <h2 className="text-white" onClick={e =>  window.location.href='/survey/'+props.surveyId}>{props.title}</h2>
+                    <h2 className="text-white" style={{cursor: "pointer"}} onClick={e =>  window.location.href='/survey/'+props.surveyId}>{props.title}</h2>
             </Col>
         </Row>
     );

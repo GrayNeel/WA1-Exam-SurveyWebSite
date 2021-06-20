@@ -31,7 +31,7 @@ function App() {
     try {
       const user = await API.logIn(credentials);
       setLoggedIn(true);
-      setMessage({ msg: `Welcome back, ${user}!`, type: 'success' }); 
+      setMessage({ msg: `Welcome back, ${user}!`, type: 'success' });
     } catch (err) {
       setMessage({ msg: err, type: 'danger' });
       throw "Incorrect username and/or password";
@@ -41,47 +41,44 @@ function App() {
   const doLogOut = async () => {
     await API.logOut();
     setLoggedIn(false);
-    // clean up everything
-    //setTasks([]);
-    //setLastId(0);
   }
 
   /**********************************************************************************************************************/
-  const [surveys, setSurveys] = useState([]); 
-    //Rehydrate tasks at mount time
-    useEffect(() => {
-      if (!loggedIn) {
-        API.getAvailableSurveys().then(newS => {
-          setSurveys(newS);
-          setLoading(false);
-        }).catch(err => {
-          console.log(err);
-          setSurveys([]);
-          setLoading(false);
-        });
-      }
-  
-    }, [loggedIn]);
+  const [surveys, setSurveys] = useState([]);
+
+  //Rehydrate surveys at mount time
+  useEffect(() => {
+    if (!loggedIn) {
+      API.getAvailableSurveys().then(newS => {
+        setSurveys(newS);
+        setLoading(false);
+      }).catch(err => {
+        console.log(err);
+        setSurveys([]);
+      });
+    }
+
+  }, [loggedIn]);
 
   return (
     <Router>
-      <div style={{backgroundColor: "#68717a"}} className="row-height">
-      <SurveyNavbar message={message} logout={doLogOut} loggedIn={loggedIn} />
-      <Container fluid>
-        <Route exact path="/login">
-          <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
-        </Route>
+      <div style={{ backgroundColor: "#68717a" }} className="row-height">
+        <SurveyNavbar message={message} logout={doLogOut} loggedIn={loggedIn} />
+        <Container fluid>
+          <Route exact path="/login">
+            <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
+          </Route>
 
-        <Route exact path="/">
-        <>{loggedIn ? <AdminContent surveys={surveys}/> : <UserContent surveys={surveys}/>}</>
-        </Route>
+          <Route exact path="/">
+            <>{loggedIn ? <AdminContent surveys={surveys} /> : <UserContent surveys={surveys} />}</>
+          </Route>
 
-        <Route path="/survey/:surveyId" render={({match}) => 
-          <>
-            {loggedIn ? <Redirect to="/"/> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} setLoading={setLoading}/>}
-          </>
-        }/>
-      </Container>
+          <Route path="/survey/:surveyId" render={({ match }) =>
+            <>
+              {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} setLoading={setLoading} />}
+            </>
+          } />
+        </Container>
       </div>
     </Router>
   );
