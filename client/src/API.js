@@ -37,7 +37,7 @@ async function addNewSurvey(survey) {
 };
 
 async function addNewAnswer(answer, surveyId) {
-    await fetch('api/surveys/answer?id='+surveyId, {
+    await fetch('http://localhost:3000/api/surveys/answer?id='+surveyId, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

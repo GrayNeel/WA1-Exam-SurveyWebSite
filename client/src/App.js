@@ -7,9 +7,9 @@ import NotFound from './NotFound';
 import DoSurvey from './DoSurvey';
 import CreateSurvey from './CreateSurvey';
 import ShowAnswers from './ShowAnswers';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Container, Row, Button, Modal } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import API from './API.js';
 
 function App() {

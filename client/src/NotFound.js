@@ -1,5 +1,5 @@
-import { Container, Row, Button, Modal } from 'react-bootstrap';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
+import { Row, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 function NotFound(props) {
     return (

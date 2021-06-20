@@ -199,12 +199,12 @@ app.post('/api/surveys/answer',
     const id = req.query.id;
     const name = req.body.name;
     const answers = req.body.answers;
-
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    
     // if (Object.entries(answers).length === 0) {
     //   res.status(400).json("Not enough answers");
     //   return;
@@ -243,6 +243,7 @@ app.post('/api/surveys/answer',
 
       return verified;
     }
+
 
     surveyDao.getSurveyById(id)
       .then((survey) => {

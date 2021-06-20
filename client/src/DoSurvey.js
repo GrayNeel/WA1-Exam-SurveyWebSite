@@ -1,7 +1,7 @@
 import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import API from './API.js';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
@@ -12,7 +12,7 @@ function DoSurvey(props) {
   const [answers, setAnswers] = useState([]);
 
   useEffect(() => {
-    if (!props.loggedIn) {
+    if (!props.loggedIn && !validated) {
       API.getSurveyById(props.surveyId).then(newS => {
         setSurvey(newS);
         setLoading(false);
@@ -23,44 +23,48 @@ function DoSurvey(props) {
       });
     }
 
-  }, [props.loggedIn]); //put also "props" because console signal a warning
+  }, [props.loggedIn, props.surveyId, validated]); //put also "props" because console signal a warning
 
   const editOrAddOpenAnswer = (answer) => {
-    if (answers.length == 0) {
-      setAnswers([{ questionId: answer.questionId, openAnswer: answer.openAnswer }]);
+    // If user deletes the text, remove it from the array
+    if (answer.openAnswer.length === 0) {
+      setAnswers(oldAnswers => oldAnswers.filter(ans => ans.questionId !== answer.questionId));
       return;
     }
 
     if (answers.find(o => o.questionId === answer.questionId) !== undefined) {
+      // If user is typing update
       setAnswers(oldAnswers => {
         return oldAnswers.map((as) => {
-          if (as.id === answer.id)
+          if (as.questionId === answer.questionId)
             return { questionId: answer.questionId, openAnswer: answer.openAnswer };
           else
             return as;
         });
-      })
-    } else {
-      setAnswers(oldAnswers => [...oldAnswers, answer]);
+      });
+      return;
     }
+    // First type from user add answer to the array
+    setAnswers(oldAnswers => [...oldAnswers, answer]);
   }
 
   const editOrAddClosedAnswer = (answer) => {
-    if (answers.length == 0) {
-      setAnswers([{ questionId: answer.questionId, selOptions: answer.selOptions }]);
-      return;
+    // If user deselects all checkboxes, remove it from array
+    if (answer.selOptions.length === 0) {
+      setAnswers(oldAnswers => oldAnswers.filter(ans => ans.questionId !== answer.questionId));
     }
-
+    // If checkboxes is already in the array, update it
     if (answers.find(o => o.questionId === answer.questionId) !== undefined) {
       setAnswers(oldAnswers => {
         return oldAnswers.map((as) => {
-          if (as.id === answer.id)
+          if (as.questionId === answer.questionId)
             return { questionId: answer.questionId, selOptions: answer.selOptions };
           else
             return as;
         });
       })
     } else {
+      // Otherwise, add it to the array
       setAnswers(oldAnswers => [...oldAnswers, answer]);
     }
   }
@@ -68,18 +72,19 @@ function DoSurvey(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    //TODO: check if minimum answers for closed questions is ok
+
     const form = event.currentTarget;
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
     }
     else {
-      //API.addNewAnswer(answers, survey.surveyId);
-      const newName = { name: name };
-      console.log([newName, ...answers]);
+      let res = { name: name, answers: answers };
+      API.addNewAnswer(res, survey.surveyId);
+      console.log(res);
     }
     setValidated(true);
-
   };
 
   return (
@@ -94,8 +99,9 @@ function DoSurvey(props) {
               <Col className="col-md-auto rounded mt-2 mb-4">
                 <Form noValidate validated={validated} onSubmit={handleSubmit}>
                   <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert} />
-                  {(alert.length == 0 && name.length > 2) ? <QuestionsList loading={loading} questions={survey.questions} answers={answers} editOrAddOpenAnswer={editOrAddOpenAnswer} editOrAddClosedAnswer={editOrAddClosedAnswer} /> : <></>}
+                  {(alert.length === 0 && name.length > 2) ? <QuestionsList loading={loading} questions={survey.questions} answers={answers} editOrAddOpenAnswer={editOrAddOpenAnswer} editOrAddClosedAnswer={editOrAddClosedAnswer} /> : <></>}
                   <EndingButtons name={name} alert={alert} />
+                  {validated ? <Redirect to='/'/> : <></>}
                 </Form>
               </Col>
             </Row>
@@ -109,7 +115,7 @@ function DoSurvey(props) {
 function NameBox(props) {
 
   const validateName = (name) => {
-    if (name.length == 0) {
+    if (name.length === 0) {
       props.setName('');
       props.setAlert('');
     } else
@@ -154,7 +160,7 @@ function EndingButtons(props) {
       <Link to="/">
         <Button variant="outline-light">Back to surveys</Button>
       </Link>
-      {(props.alert.length == 0 && props.name.length > 2) ? <Button type="submit" variant="outline-light">Send Answers</Button> : <></>}
+      {(props.alert.length === 0 && props.name.length > 2) ? <Button type="submit" variant="outline-light">Send Answers</Button> : <></>}
     </div>
   );
 }
@@ -226,12 +232,27 @@ function ClosedQuestion(props) {
 
   const checkSingleAnswer = (checked, optionId, questionId) => {
 
-    const selQuestion = props.answers.find(o => o.questionId === props.questionId);
+    // Add/Update it
+    props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
+  }
 
-    if (selQuestion === undefined && checked)
+  const checkMultipleAnswer = (checked, optionId, questionId) => {
+
+    const selQuestion = props.answers.find(o => o.questionId === props.questionId);
+    
+    if (checked) {
+      //if it is the first answer to the question, add it
+      if (selQuestion === undefined)
       props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
-    else {
-      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
+      
+      //Otherwise check if it is possible to add the answer
+      else if (selQuestion.selOptions.length < props.max)
+      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [...selQuestion.selOptions, optionId] });
+    } else {
+      // User unchecked, so remove is needed
+      const newOpt = selQuestion.selOptions.filter(opt => opt !== optionId);
+      console.log("NEW: " + newOpt);
+      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: newOpt });
     }
   }
 
@@ -241,19 +262,13 @@ function ClosedQuestion(props) {
         <>
           <Form.Group className="ml-3" controlId={props.questionId}>
             <br></br>
-            {props.options.map(option =>
+            {props.options.map((option) =>
               <Form.Check
-                type={'radio'}
                 key={option.optionId}
                 id={option.optionId}
-                name={option.questionId}
+                type={'radio'}
                 label={option.text}
-                onClick={event => checkSingleAnswer(event.target.checked, option.optionId, option.questionId)}
-              // checked={props.answers.length != 0 ?
-              //   props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
-              //   :
-              //   false
-              // }
+                onChange={event => checkSingleAnswer(event.target.checked, option.optionId, option.questionId)}
               />
             )}
           </Form.Group>
@@ -263,13 +278,19 @@ function ClosedQuestion(props) {
         <>
           <Form.Group className="ml-3">
             <br></br>
-            {props.options.map(option =>
-              <Form.Check
-                type={'checkbox'}
-                key={option.optionId}
-                id={option.optionId}
-                label={option.text}
-              />
+            {props.options.map((option) =>
+                <Form.Check
+                  key={option.optionId}
+                  id={option.optionId}
+                  type={'checkbox'}
+                  label={option.text}
+                  onChange={event => checkMultipleAnswer(event.target.checked, option.optionId, option.questionId)}
+                  checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
+                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
+                    :
+                    false
+                  }
+                />
             )}
           </Form.Group>
           <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
