@@ -7,6 +7,7 @@ function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
+  const [alert, setAlert] = useState('');
 
   useEffect(() => {
     if (!props.loggedIn) {
@@ -21,7 +22,7 @@ function DoSurvey(props) {
     }
 
   }, [props.loggedIn]); //put also "props" because console signal a warning
-
+  console.log(alert.length);
   return (
     <>
       {survey.err ?
@@ -32,9 +33,9 @@ function DoSurvey(props) {
             <SurveyTitle title={survey.title} />
             <Row className="justify-content-center">
               <Col className="col-md-auto rounded mt-2 mb-4">
-                <NameBox name={name} setName={setName} />
-                {name.length > 0 ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
-                <EndingButtons name={name} />
+                <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert}/>
+                {(alert.length == 0 && name.length>0) ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
+                <EndingButtons name={name} alert={alert}/>
               </Col>
             </Row>
           </Container >
@@ -45,13 +46,27 @@ function DoSurvey(props) {
 }
 
 function NameBox(props) {
+
+  const validateName = (name) => {
+    if (name.length == 0) {
+      props.setName('');
+      props.setAlert('');
+    }else
+    if (!/[^a-zA-Z]/.test(name)) {
+      props.setName(name);
+      props.setAlert('');
+    }else
+      props.setAlert("Invalid name");
+  }
+
   return (
     <Col className="col-md-auto bg-light rounded mt-2 mb-2 ">
       <Row className="">
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
           <h3>Insert your name</h3>
           <Form>
-            <Form.Control type="text" placeholder="Insert name here" onChange={td => props.setName(td.target.value)} />
+            <Form.Control type="text" placeholder="Insert name here" onChange={td => validateName(td.target.value)} />
+            <Form.Label className="text-danger">{props.alert}</Form.Label>
           </Form>
         </Col>
       </Row>
@@ -80,7 +95,7 @@ function EndingButtons(props) {
       <Link to="/">
         <Button variant="outline-light">Back to surveys</Button>
       </Link>
-      {props.name.length > 0 ? <Button variant="outline-light">Send Answers</Button> : <></>}
+      {(props.alert.length == 0 && props.name.length > 0) ? <Button variant="outline-light">Send Answers</Button> : <></>}
     </div>
   );
 }
