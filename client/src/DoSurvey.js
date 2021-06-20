@@ -34,7 +34,7 @@ function DoSurvey(props) {
             <Row className="justify-content-center">
               <Col className="col-md-auto rounded mt-2 mb-4">
                 <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert}/>
-                {(alert.length == 0 && name.length>0) ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
+                {(alert.length == 0 && name.length>2) ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
                 <EndingButtons name={name} alert={alert}/>
               </Col>
             </Row>
@@ -95,7 +95,7 @@ function EndingButtons(props) {
       <Link to="/">
         <Button variant="outline-light">Back to surveys</Button>
       </Link>
-      {(props.alert.length == 0 && props.name.length > 0) ? <Button variant="outline-light">Send Answers</Button> : <></>}
+      {(props.alert.length == 0 && props.name.length > 2) ? <Button variant="outline-light">Send Answers</Button> : <></>}
     </div>
   );
 }
