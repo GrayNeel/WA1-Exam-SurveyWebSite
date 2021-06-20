@@ -98,7 +98,7 @@ async function logOut() {
 }
 
 async function getUserInfo() {
-    const response = await fetch('api/sessions/current');
+    const response = await fetch('http://localhost:3000/api/sessions/current');
     const userInfo = await response.json();
     if (response.ok) {
         return userInfo;

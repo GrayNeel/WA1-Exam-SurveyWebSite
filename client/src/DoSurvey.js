@@ -4,23 +4,20 @@ import API from './API.js';
 
 function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
-  const [dirty, setDirty] = useState(true);
 
   useEffect(() => {
-    if (!props.loggedIn && dirty) {
+    if (!props.loggedIn) {
       API.getSurveyById(props.surveyId).then(newS => {
         setSurvey(newS);
-        setDirty(false);
         props.setLoading(false);
       }).catch(err => {
         console.log(err);
         setSurvey(undefined);
-        setDirty(false);
         props.setLoading(false);
       });
     }
 
-  }, [dirty, props.loggedIn]); //put also "props" because console signal a warning
+  }, [props.loggedIn]); //put also "props" because console signal a warning
 
   return (
     <>
@@ -127,6 +124,7 @@ function OpenQuestion(props) {
   return (
     <Form>
       <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+        <Form.Label>{props.mandatory===1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
         <Form.Control as="textarea" rows={5} />
       </Form.Group>
     </Form>
