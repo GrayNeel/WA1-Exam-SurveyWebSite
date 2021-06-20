@@ -3,8 +3,11 @@ import SurveyNavbar from './SurveyNavbar';
 import { LoginForm } from './LoginForm';
 import AdminContent from './AdminContent';
 import UserContent from './UserContent';
+import NotFound from './NotFound';
 import DoSurvey from './DoSurvey';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import CreateSurvey from './CreateSurvey';
+import ShowAnswers from './ShowAnswers';
+import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Container, Row, Button, Modal } from 'react-bootstrap';
 import API from './API.js';
@@ -55,12 +58,24 @@ function App() {
             </Route>
 
             <Route exact path="/">
-              <>{loggedIn ? <AdminContent/> : <UserContent/>}</>
+              <>{loggedIn ? <AdminContent /> : <UserContent />}</>
             </Route>
 
             <Route path="/survey/:surveyId" render={({ match }) =>
               <>
                 {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} />}
+              </>
+            } />
+
+            <Route exact path="/admin/new">
+              <>
+                {loggedIn ? <CreateSurvey/> : <Redirect to="/" />}
+              </>
+            </Route>
+
+            <Route path="/admin/survey/:surveyId" render={({ match }) =>
+              <>
+                {loggedIn ? <ShowAnswers/> : <Redirect to="/" />}
               </>
             } />
 
@@ -73,17 +88,6 @@ function App() {
   );
 }
 
-function NotFound(props) {
-  return (
-    <>
-      <Row className="justify-content-center">
-        <h1 className="text-white mt-2">404: NOT FOUND</h1>
-      </Row>
-      <Row className="justify-content-center">
-        <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
-      </Row>
-    </>
-  );
-}
+
 
 export default App;

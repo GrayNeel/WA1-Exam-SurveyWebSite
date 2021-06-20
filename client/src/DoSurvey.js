@@ -1,6 +1,7 @@
 import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import API from './API.js';
+import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
 
 function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
@@ -30,7 +31,7 @@ function DoSurvey(props) {
           <Container>
             <SurveyTitle title={survey.title} />
             <Row className="justify-content-center">
-              <Col className="col-md-auto rounded mt-2">
+              <Col className="col-md-auto rounded mt-2 mb-4">
                 <NameBox name={name} setName={setName} />
                 {name.length > 0 ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
                 <EndingButtons name={name} />
@@ -65,7 +66,9 @@ function NotFound(props) {
         <h1 className="text-white mt-2">404: NOT FOUND</h1>
       </Row>
       <Row className="justify-content-center">
-        <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
+        <Link to={"/"}>
+          <Button variant="outline-light" >Back to surveys</Button>
+        </Link>
       </Row>
     </>
   );
@@ -74,7 +77,9 @@ function NotFound(props) {
 function EndingButtons(props) {
   return (
     <div className="d-flex justify-content-between mt-4">
-      <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
+      <Link to="/">
+        <Button variant="outline-light">Back to surveys</Button>
+      </Link>
       {props.name.length > 0 ? <Button variant="outline-light">Send Answers</Button> : <></>}
     </div>
   );
@@ -118,9 +123,9 @@ function Question(props) {
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
           <h3>{props.title}</h3>
           {props.mandatory !== undefined ?
-            <OpenQuestion mandatory={props.mandatory} questionId={props.questionId}/>
+            <OpenQuestion mandatory={props.mandatory} questionId={props.questionId} />
             :
-            <ClosedQuestion min={props.min} max={props.max} options={props.options} questionId={props.questionId}/>
+            <ClosedQuestion min={props.min} max={props.max} options={props.options} questionId={props.questionId} />
           }
         </Col>
       </Row>
@@ -131,10 +136,10 @@ function Question(props) {
 function OpenQuestion(props) {
   const [openAnswer, setOpenAnswer] = useState('');
   return (
-      <Form.Group className="mb-3" controlId={props.questionId}>
-        <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
-        <Form.Control as="textarea" rows={5} onChange={td => setOpenAnswer(td.target.value)} />
-      </Form.Group>
+    <Form.Group className="mb-3" controlId={props.questionId}>
+      <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
+      <Form.Control as="textarea" rows={5} onChange={td => setOpenAnswer(td.target.value)} />
+    </Form.Group>
   );
 }
 

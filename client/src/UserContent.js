@@ -1,5 +1,5 @@
 import { Container, Col, Row } from 'react-bootstrap';
-
+import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import API from './API.js';
 
@@ -57,7 +57,9 @@ function SurveyRow(props) {
     return (
         <Row className="justify-content-center">
             <Col className="col-md-auto mt-4 mb-4 bg-secondary rounded-pill">
-                <h2 className="text-white" style={{ cursor: "pointer" }} onClick={e => { window.location.href = '/survey/' + props.surveyId; }}>{props.title}</h2>
+                <Link to={"/survey/" + props.surveyId} style={{ textDecoration: 'none' }}>
+                    <h2 className="text-white" style={{ cursor: "pointer" }} >{props.title}</h2>
+                </Link>
             </Col>
         </Row>
     );
