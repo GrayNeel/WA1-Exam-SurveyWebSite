@@ -2,6 +2,7 @@ import { Container, Col, Row, Button } from 'react-bootstrap';
 import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import API from './API.js';
+import './App.css';
 
 function UserContent(props) {
     const [surveys, setSurveys] = useState([]);
@@ -56,11 +57,8 @@ function SurveyRow(props) {
         <Col className="col-md-auto bg-light rounded mt-2 mb-2">
             <Row className="d-flex justify-content-md-center">
                 <Col className="col-md-auto mt-4 mb-4 rounded-pill">
-                        <h2>{props.title}</h2>
-                </Col>
-                <Col className="col-md-auto mt-4 mb-4 rounded-pill">
                     <Link to={"/survey/" + props.surveyId} style={{ textDecoration: 'none' }}>
-                        <Button variant="secondary">Take the survey</Button>
+                        <h2 className="survey-hover">{props.title}</h2>
                     </Link>
                 </Col>
             </Row>
