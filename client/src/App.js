@@ -6,7 +6,7 @@ import UserContent from './UserContent';
 import DoSurvey from './DoSurvey';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Row, Button } from 'react-bootstrap';
 import API from './API.js';
 
 function App() {
@@ -65,22 +65,41 @@ function App() {
       <div style={{ backgroundColor: "#68717a" }} className="row-height">
         <SurveyNavbar message={message} logout={doLogOut} loggedIn={loggedIn} />
         <Container fluid>
-          <Route exact path="/login">
-            <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
-          </Route>
+          <Switch>
+            <Route exact path="/login">
+              <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
+            </Route>
 
-          <Route exact path="/">
-            <>{loggedIn ? <AdminContent surveys={surveys} /> : <UserContent surveys={surveys} />}</>
-          </Route>
+            <Route exact path="/">
+              <>{loggedIn ? <AdminContent surveys={surveys} /> : <UserContent surveys={surveys} />}</>
+            </Route>
 
-          <Route path="/survey/:surveyId" render={({ match }) =>
-            <>
-              {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} setLoading={setLoading} />}
-            </>
-          } />
+            <Route path="/survey/:surveyId" render={({ match }) =>
+              <>
+                {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} setLoading={setLoading} />}
+              </>
+            } />
+
+            <Route path="/404" component={NotFound} />
+            <Redirect to="/404" />
+          </Switch>
         </Container>
+
       </div>
     </Router>
+  );
+}
+
+function NotFound(props) {
+  return (
+    <>
+      <Row className="justify-content-center">
+        <h1 className="text-white mt-2">404: NOT FOUND</h1>
+      </Row>
+      <Row className="justify-content-center">
+        <Button variant="outline-light" onClick={e => { window.location.href = '/'; }}>Back to surveys</Button>
+      </Row>
+    </>
   );
 }
 

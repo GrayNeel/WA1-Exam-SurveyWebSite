@@ -48,7 +48,7 @@ function NameBox(props) {
     <Col className="col-md-auto bg-light rounded mt-2 mb-2 ">
       <Row className="">
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
-          <h3>Insert your name first</h3>
+          <h3>Insert your name</h3>
           <Form>
             <Form.Control type="text" placeholder="Insert name here" />
           </Form>
@@ -137,7 +137,7 @@ function ClosedQuestion(props) {
   return (
     <>
       {props.max === 1 ?
-        <Form>
+        <Form className="ml-3">
           {props.options.map(option =>
             <Form.Check
               type={'radio'}
@@ -147,7 +147,7 @@ function ClosedQuestion(props) {
           )}
         </Form>
         :
-        <Form>
+        <Form className="ml-3">
           {props.options.map(option =>
             <Form.Check
               type={'checkbox'}
