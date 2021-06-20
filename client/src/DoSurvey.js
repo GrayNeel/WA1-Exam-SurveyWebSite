@@ -8,6 +8,7 @@ function DoSurvey(props) {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [alert, setAlert] = useState('');
+  const [validated, setValidated] = useState(false);
 
   useEffect(() => {
     if (!props.loggedIn) {
@@ -22,7 +23,23 @@ function DoSurvey(props) {
     }
 
   }, [props.loggedIn]); //put also "props" because console signal a warning
-  console.log(alert.length);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    }
+    else {
+      //props.handleAddOrEdit();
+      console.log(form);
+    }
+    setValidated(true);
+
+  };
+
   return (
     <>
       {survey.err ?
@@ -33,9 +50,11 @@ function DoSurvey(props) {
             <SurveyTitle title={survey.title} />
             <Row className="justify-content-center">
               <Col className="col-md-auto rounded mt-2 mb-4">
-                <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert}/>
-                {(alert.length == 0 && name.length>2) ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
-                <EndingButtons name={name} alert={alert}/>
+                <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                  <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert} />
+                  {(alert.length == 0 && name.length > 2) ? <QuestionsList loading={loading} questions={survey.questions} /> : <></>}
+                  <EndingButtons name={name} alert={alert} />
+                </Form>
               </Col>
             </Row>
           </Container >
@@ -51,12 +70,12 @@ function NameBox(props) {
     if (name.length == 0) {
       props.setName('');
       props.setAlert('');
-    }else
-    if (!/[^a-zA-Z]/.test(name)) {
-      props.setName(name);
-      props.setAlert('');
-    }else
-      props.setAlert("Invalid name");
+    } else
+      if (!/[^a-zA-Z]/.test(name)) {
+        props.setName(name);
+        props.setAlert('');
+      } else
+        props.setAlert("Invalid name");
   }
 
   return (
@@ -64,10 +83,8 @@ function NameBox(props) {
       <Row className="">
         <Col className="col-md-auto mt-4 mb-4 rounded-pill">
           <h3>Insert your name</h3>
-          <Form>
-            <Form.Control type="text" placeholder="Insert name here" onChange={td => validateName(td.target.value)} />
-            <Form.Label className="text-danger">{props.alert}</Form.Label>
-          </Form>
+          <Form.Control type="text" placeholder="Insert name here" onChange={td => validateName(td.target.value)} required />
+          <Form.Label className="text-danger">{props.alert}</Form.Label>
         </Col>
       </Row>
     </Col>
@@ -95,7 +112,7 @@ function EndingButtons(props) {
       <Link to="/">
         <Button variant="outline-light">Back to surveys</Button>
       </Link>
-      {(props.alert.length == 0 && props.name.length > 2) ? <Button variant="outline-light">Send Answers</Button> : <></>}
+      {(props.alert.length == 0 && props.name.length > 2) ? <Button type="submit" variant="outline-light">Send Answers</Button> : <></>}
     </div>
   );
 }
@@ -113,20 +130,18 @@ function SurveyTitle(props) {
 function QuestionsList(props) {
   return (
     <>
-      <Form>
-        {(props.loading === false) && props.questions ? props.questions.map(question =>
-          <Question
-            key={question.questionId}
-            questionId={question.questionId}
-            title={question.title}
-            min={question.min}
-            max={question.max}
-            options={question.options}
-            mandatory={question.mandatory}
-          />
-        ) : <></>
-        }
-      </Form>
+      {(props.loading === false) && props.questions ? props.questions.map(question =>
+        <Question
+          key={question.questionId}
+          questionId={question.questionId}
+          title={question.title}
+          min={question.min}
+          max={question.max}
+          options={question.options}
+          mandatory={question.mandatory}
+        />
+      ) : <></>
+      }
     </>
   );
 }
@@ -153,7 +168,11 @@ function OpenQuestion(props) {
   return (
     <Form.Group className="mb-3" controlId={props.questionId}>
       <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
-      <Form.Control as="textarea" rows={5} onChange={td => setOpenAnswer(td.target.value)} />
+      {props.mandatory === 1 ?
+        <Form.Control as="textarea" rows={5} value={openAnswer} onChange={td => setOpenAnswer(td.target.value)} required />
+        :
+        <Form.Control as="textarea" rows={5} value={openAnswer} onChange={td => setOpenAnswer(td.target.value)} />
+      }
     </Form.Group>
   );
 }
@@ -163,33 +182,68 @@ function ClosedQuestion(props) {
     <>
       {props.max === 1 ?
         <>
-          <Form.Group className="ml-3" controlId={props.questionId}>
-            <br></br>
-            {props.options.map(option =>
-              <Form.Check
-                type={'radio'}
-                key={option.optionId}
-                id={option.optionId}
-                name={option.questionId}
-                label={option.text}
-              />
-            )}
-          </Form.Group>
+          {props.min === 1 ?
+            // Single answer required
+            <Form.Group className="ml-3" controlId={props.questionId}>
+              <br></br>
+              {props.options.map(option =>
+                <Form.Check
+                  type={'radio'}
+                  key={option.optionId}
+                  id={option.optionId}
+                  name={option.questionId}
+                  label={option.text}
+                  required
+                />
+              )}
+            </Form.Group>
+            :
+            // Single answer but not required
+            <Form.Group className="ml-3" controlId={props.questionId}>
+              <br></br>
+              {props.options.map(option =>
+                <Form.Check
+                  type={'radio'}
+                  key={option.optionId}
+                  id={option.optionId}
+                  name={option.questionId}
+                  label={option.text}
+                />
+              )}
+            </Form.Group>
+          }
           <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
         </>
         :
         <>
-          <Form.Group className="ml-3">
-            <br></br>
-            {props.options.map(option =>
-              <Form.Check
-                type={'checkbox'}
-                key={option.optionId}
-                id={option.optionId}
-                label={option.text}
-              />
-            )}
-          </Form.Group>
+          {props.min === 1 ?
+            // Multiple answers but at least one is required  
+            //TODO: make at least one required
+            <Form.Group className="ml-3" >
+              <br></br>
+              {props.options.map(option =>
+                <Form.Check
+                  type={'checkbox'}
+                  key={option.optionId}
+                  id={option.optionId}
+                  label={option.text}
+                />
+              )}
+            </Form.Group>
+            :
+            // Multiple answers none is required
+            <Form.Group className="ml-3">
+              <br></br>
+              {props.options.map(option =>
+                <Form.Check
+                  type={'checkbox'}
+                  key={option.optionId}
+                  id={option.optionId}
+                  label={option.text}
+                />
+              )}
+            </Form.Group>
+        }
           <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
         </>
       }
