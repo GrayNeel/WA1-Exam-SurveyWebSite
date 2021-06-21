@@ -212,6 +212,9 @@ function AddQuestionModal(props) {
     // Open question = 0, Closed question = 1
     const [type, setType] = useState(-1);
     const handleClose = () => props.setShow(false);
+    const [validated, setValidated] = useState(false);
+
+    const handleSubmit = () => {};
 
     return (
         <>
@@ -220,7 +223,7 @@ function AddQuestionModal(props) {
                     <Modal.Title>Add a new question</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
+                    <Form noValidate validated={validated} onSubmit={handleSubmit}>
                         <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Choose the type of question:</Form.Label>
                         <Form.Check
                             label="Open Question"
@@ -286,7 +289,7 @@ function AddQuestionModal(props) {
                     <Button variant="secondary" onClick={handleClose}>
                         Back
                     </Button>
-                    <Button variant="dark" onClick={handleClose}>
+                    <Button variant="dark" type="submit">
                         Add
                     </Button>
                 </Modal.Footer>
