@@ -46,7 +46,6 @@ function App() {
   }
 
   /**********************************************************************************************************************/
-
   return (
     <Router>
       <div style={{ backgroundColor: "#68717a" }} className="row-height">
@@ -58,7 +57,7 @@ function App() {
             </Route>
 
             <Route exact path="/">
-              <>{loggedIn ? <AdminContent /> : <UserContent />}</>
+              <>{loggedIn ? <AdminContent loggedIn={loggedIn}/> : <UserContent loggedIn={loggedIn}/>}</>
             </Route>
 
             <Route path="/survey/:surveyId" render={({ match }) =>
@@ -75,7 +74,7 @@ function App() {
 
             <Route path="/admin/survey/:surveyId" render={({ match }) =>
               <>
-                {loggedIn ? <ShowAnswers/> : <Redirect to="/" />}
+                {loggedIn ? <ShowAnswers surveyId={match.params.surveyId} loggedIn={loggedIn}/> : <Redirect to="/" />}
               </>
             } />
 

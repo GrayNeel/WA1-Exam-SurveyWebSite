@@ -58,7 +58,7 @@ async function getAvailableSurveysLogged() {
 }
 
 async function getAnswersOfSurvey(surveyId) {
-    const response = await fetch('http://localhost:3001/api/surveys/get/answers?id='+surveyId);
+    const response = await fetch('http://localhost:3000/api/surveys/get/answers?id='+surveyId);
     if (response.ok) {
         const answers = await response.json();
         return answers;

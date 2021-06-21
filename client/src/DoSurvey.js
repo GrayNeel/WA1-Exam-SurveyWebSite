@@ -4,12 +4,15 @@ import API from './API.js';
 import { Link, Redirect } from 'react-router-dom';
 
 function DoSurvey(props) {
+  // Survey to answer
   const [survey, setSurvey] = useState([]);
+  // Answers from user
+  const [answers, setAnswers] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState('');
   const [validated, setValidated] = useState(false);
   const [name, setName] = useState('');
-  const [answers, setAnswers] = useState([]);
   const [error, setError] = useState(false);
 
   useEffect(() => {

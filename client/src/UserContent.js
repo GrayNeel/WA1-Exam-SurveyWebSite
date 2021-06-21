@@ -9,7 +9,7 @@ function UserContent(props) {
     const [loading, setLoading] = useState(true);
     //Rehydrate surveys at mount time
     useEffect(() => {
-        if (!props.loggedIn) {
+        if (props.loggedIn === false) {
             API.getAvailableSurveys().then(newS => {
                 setSurveys(newS);
                 setLoading(false);

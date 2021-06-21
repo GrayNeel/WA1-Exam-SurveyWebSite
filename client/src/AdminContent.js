@@ -7,9 +7,10 @@ function AdminContent(props) {
 
     const [surveys, setSurveys] = useState([]);
     const [loading, setLoading] = useState(true);
+
     //Rehydrate surveys at mount time
     useEffect(() => {
-        if (!props.loggedIn) {
+        if (props.loggedIn === true) {
             API.getAvailableSurveysLogged().then(newS => {
                 setSurveys(newS);
                 setLoading(false);
@@ -67,16 +68,20 @@ function SurveyTable(props) {
 function SurveyRow(props) {
     return (
         <>
-            <Col className="col-md-auto bg-light rounded mt-2 mb-2 ">
+            <Col className="col-md-auto bg-light rounded mt-2 mb-2 justify-content-between">
                 <Row className="">
-                    <Col className="col-md-auto mt-4 mb-4 rounded-pill">
+                    <Col className="mt-4 mb-4 ">
                         <h3>{props.title}</h3>
                         <span>Number of answers: {props.answersNumber}</span>
                     </Col>
-                    <Col className="col-md-auto mt-4 mb-4 justify-content-center">
+                    <Col className="col-md-auto pt-4">
+                        {props.answersNumber > 0 ? 
                         <Link to={"/admin/survey/"+props.surveyId}>
-                            <Button variant="secondary">Answers</Button>
+                            <Button variant="secondary" className="ml-2">See answers</Button>
                         </Link>
+                        : 
+                        <Button variant="secondary" className="ml-2" disabled>See answers</Button>
+                        }
                     </Col>
                 </Row>
             </Col >
