@@ -44,6 +44,7 @@ exports.getSurveyById = (surveyId) => {
                 reject(err);
                 return;
             }
+            
             /** Row is already an object, but the "question" DB column is a string. So, it needs to be parsed */
             if(row !== undefined)
                 row.questions = JSON.parse(row.questions);

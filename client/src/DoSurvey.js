@@ -1,4 +1,4 @@
-import { Container, Row, Col, Button, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, Form, Modal } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import API from './API.js';
 import { Link, Redirect } from 'react-router-dom';
@@ -10,6 +10,7 @@ function DoSurvey(props) {
   const [validated, setValidated] = useState(false);
   const [name, setName] = useState('');
   const [answers, setAnswers] = useState([]);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!props.loggedIn && !validated) {
@@ -70,21 +71,50 @@ function DoSurvey(props) {
   }
 
   const handleSubmit = (event) => {
+    let valid = true;
+    const form = event.currentTarget;
+
     event.preventDefault();
 
-    //TODO: check if minimum answers for closed questions is ok
-
-    const form = event.currentTarget;
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
+      valid = false;
     }
     else {
+      // Check if minimum answers for closed questions is satisfied
+      survey.questions.forEach(q => {
+        // Search for the mandatory open questions
+        if (q.mandatory !== undefined && q.mandatory === 1) {
+          let ans = answers.find(o => o.questionId === q.questionId);
+          // If not present, user didn't answer to mandatory question
+          if (ans === undefined) {
+            event.stopPropagation();
+            valid = false;
+          }
+        }
+        //Search for closed required questions 
+        if (q.min !== undefined && q.min > 0) {
+          let ans = answers.find(o => o.questionId === q.questionId);
+          // if it is not present or > max, it is not valid
+          console.log("CLOSED QUESTION MANDATORY: " + ans);
+          if (ans === undefined || ans.selOptions.length > q.max) {
+            event.stopPropagation();
+            valid = false;
+          }
+        }
+      });
+
+    }
+    if (valid) {
       let res = { name: name, answers: answers };
       API.addNewAnswer(res, survey.surveyId);
-      console.log(res);
+      setValidated(true);
+      setError(false);
+    } else {
+      console.log("HEERE");
+      setError(true);
     }
-    setValidated(true);
   };
 
   return (
@@ -101,13 +131,34 @@ function DoSurvey(props) {
                   <NameBox name={name} setName={setName} alert={alert} setAlert={setAlert} />
                   {(alert.length === 0 && name.length > 2) ? <QuestionsList loading={loading} questions={survey.questions} answers={answers} editOrAddOpenAnswer={editOrAddOpenAnswer} editOrAddClosedAnswer={editOrAddClosedAnswer} /> : <></>}
                   <EndingButtons name={name} alert={alert} />
-                  {validated ? <Redirect to='/'/> : <></>}
+                  {validated ? <Redirect to='/' /> : <></>}
                 </Form>
               </Col>
             </Row>
           </Container >
       }
+      {error ? <ErrModal error={error} setError={setError}/> : <></>}
 
+    </>
+  );
+}
+
+function ErrModal(props) {
+  const handleClose = () => props.setError(false);
+
+  return (
+    <>
+      <Modal show={props.error} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title className="text-danger">Warning!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Some required answers are missing, please check again your answers.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="dark" onClick={handleClose}>
+            Ok, I understand
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
@@ -230,6 +281,14 @@ function OpenQuestion(props) {
 
 function ClosedQuestion(props) {
 
+  // Counter that tells how many answers the user gave to the question
+  let givenAnsw = props.answers.find(o => o.questionId === props.questionId);
+  if (givenAnsw !== undefined) {
+    givenAnsw = givenAnsw.selOptions.length;
+  } else {
+    givenAnsw = 0;
+  }
+
   const checkSingleAnswer = (checked, optionId, questionId) => {
 
     // Add/Update it
@@ -239,15 +298,15 @@ function ClosedQuestion(props) {
   const checkMultipleAnswer = (checked, optionId, questionId) => {
 
     const selQuestion = props.answers.find(o => o.questionId === props.questionId);
-    
+
     if (checked) {
       //if it is the first answer to the question, add it
       if (selQuestion === undefined)
-      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
-      
+        props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [optionId] });
+
       //Otherwise check if it is possible to add the answer
       else if (selQuestion.selOptions.length < props.max)
-      props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [...selQuestion.selOptions, optionId] });
+        props.editOrAddClosedAnswer({ questionId: questionId, selOptions: [...selQuestion.selOptions, optionId] });
     } else {
       // User unchecked, so remove is needed
       const newOpt = selQuestion.selOptions.filter(opt => opt !== optionId);
@@ -265,35 +324,41 @@ function ClosedQuestion(props) {
             {props.options.map((option) =>
               <Form.Check
                 key={option.optionId}
-                id={option.optionId}
+                id={option.questionId}
+                name={option.questionId}
                 type={'radio'}
                 label={option.text}
                 onChange={event => checkSingleAnswer(event.target.checked, option.optionId, option.questionId)}
               />
             )}
           </Form.Group>
-          <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
+          {givenAnsw < props.min ? <span className="text-monospace text-danger" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span> : <span className="text-monospace text-success" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span>}
+          <br></br>
+          {givenAnsw > props.max ? <span className="text-monospace text-danger" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span> : <span className="text-monospace text-success" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span>}
         </>
         :
         <>
           <Form.Group className="ml-3">
             <br></br>
             {props.options.map((option) =>
-                <Form.Check
-                  key={option.optionId}
-                  id={option.optionId}
-                  type={'checkbox'}
-                  label={option.text}
-                  onChange={event => checkMultipleAnswer(event.target.checked, option.optionId, option.questionId)}
-                  checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
-                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
-                    :
-                    false
-                  }
-                />
+              <Form.Check
+                key={option.optionId}
+                id={option.questionId}
+                name={option.questionId}
+                type={'checkbox'}
+                label={option.text}
+                onChange={event => checkMultipleAnswer(event.target.checked, option.optionId, option.questionId)}
+                checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
+                  props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
+                  :
+                  false
+                }
+              />
             )}
           </Form.Group>
-          <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min}<br></br>Maximum answers: {props.max} </span>
+          {givenAnsw < props.min ? <span className="text-monospace text-danger" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span> : <span className="text-monospace text-success" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span>}
+          <br></br>
+          {givenAnsw > props.max ? <span className="text-monospace text-danger" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span> : <span className="text-monospace text-success" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span>}
         </>
       }
     </>

@@ -199,12 +199,12 @@ app.post('/api/surveys/answer',
     const id = req.query.id;
     const name = req.body.name;
     const answers = req.body.answers;
-    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
+
     // if (Object.entries(answers).length === 0) {
     //   res.status(400).json("Not enough answers");
     //   return;
@@ -216,10 +216,8 @@ app.post('/api/surveys/answer',
     let checkAnswers = (survey) => {
       let questions = survey["questions"];
       let verified = true;
-
       questions.forEach(q => {
         let answer = answers.filter(a => (a.questionId === q.questionId));
-
         //open question
         if (q.mandatory !== undefined) {
           /** Check if answers to open question is mandatory and user answered it */
@@ -229,10 +227,18 @@ app.post('/api/surveys/answer',
         } else {
           //multiple choice question
           /** Check if answers to multiple question is mandatory and user answered it */
-          if ((answer[0] === undefined || answer[0].selOptions === undefined) && q.min > 0)
+          if ((answer[0] === undefined || answer[0].selOptions === undefined) && q.min > 0) {
             verified = false;
+          }
 
-          let ansNum = Object.entries(answer[0].selOptions).length;
+          let ansNum;
+          //closed answer not given
+          if (answer[0] === undefined) {
+            ansNum = 0;
+          } else {
+            ansNum = Object.entries(answer[0].selOptions).length;
+          }
+
 
           if (ansNum > q.max || ansNum < q.min) {
             verified = false;
@@ -240,7 +246,7 @@ app.post('/api/surveys/answer',
         }
 
       });
-
+      console.log("Result is: " + verified);
       return verified;
     }
 
