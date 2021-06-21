@@ -21,7 +21,7 @@ async function getSurveyById(surveyId) {
 }
 
 async function addNewSurvey(survey) {
-    const response = await fetch('api/surveys/new', {
+    const response = await fetch('http://localhost:3000/api/surveys/new', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

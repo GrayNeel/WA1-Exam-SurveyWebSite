@@ -139,6 +139,8 @@ app.post('/api/surveys/new', isLoggedIn,
 
     let userId = req.user.id;
 
+    console.log(req.body);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -200,6 +202,7 @@ app.post('/api/surveys/answer',
     const name = req.body.name;
     const answers = req.body.answers;
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
