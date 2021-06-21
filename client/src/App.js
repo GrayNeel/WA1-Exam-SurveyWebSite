@@ -68,13 +68,13 @@ function App() {
 
             <Route exact path="/admin/new">
               <>
-                {loggedIn ? <CreateSurvey/> : <Redirect to="/" />}
+                {loggedIn ? <CreateSurvey/> : <NotFound/>}
               </>
             </Route>
 
             <Route path="/admin/survey/:surveyId" render={({ match }) =>
               <>
-                {loggedIn ? <ShowAnswers surveyId={match.params.surveyId} loggedIn={loggedIn}/> : <Redirect to="/" />}
+                {loggedIn ? <ShowAnswers surveyId={match.params.surveyId} loggedIn={loggedIn}/> : <NotFound/>}
               </>
             } />
 
