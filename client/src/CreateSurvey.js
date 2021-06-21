@@ -10,7 +10,7 @@ function CreateSurvey(props) {
     const [title, setTitle] = useState([]);
     const [alert, setAlert] = useState('At least 3 characters');
 
-    const [error, setError] = useState([]);
+    const [error, setError] = useState(false);
 
     // Modal to add questions
     const [showModal, setShowModal] = useState(false);
@@ -43,8 +43,9 @@ function CreateSurvey(props) {
         }
         else {
             if (survey.length === 0) {
-                event.stopPropagation();
+                setError('You provided no questions to survey. Add at least one question to send it.');
                 valid = false;
+                event.stopPropagation();
             }
         }
 
@@ -53,9 +54,6 @@ function CreateSurvey(props) {
                 setValidated(true);
                 setError(false);
             });
-        } else {
-            console.log("HEERE");
-            setError(true);
         }
     };
 
@@ -113,15 +111,37 @@ function CreateSurvey(props) {
                             {alert.length === 0 ?
                                 <>
                                     <QuestionsList loading={loading} questions={survey} removeQuestion={removeQuestion} moveQuestionUp={moveQuestionUp} moveQuestionDown={moveQuestionDown} />
-                                    <BottomButtons setShow={setShowModal} />
                                 </>
                                 : <></>}
+                            <BottomButtons setShow={setShowModal} alert={alert} />
                             {validated ? <Redirect to='/' /> : <></>}
                         </Form>
                     </Col>
                 </Row>
                 <AddQuestionModal show={showModal} setShow={setShowModal} survey={survey} setSurvey={setSurvey} />
+                {error ? <ErrModal error={error} setError={setError} /> : <></>}
             </Container >
+
+        </>
+    );
+}
+
+function ErrModal(props) {
+    const handleClose = () => props.setError(false);
+
+    return (
+        <>
+            <Modal show={props.error === false ? false : true} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title className="text-danger">Warning!</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>{props.error}</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="dark" onClick={handleClose}>
+                        Ok, I understand
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 }
@@ -157,8 +177,13 @@ function BottomButtons(props) {
             <Link to='/'>
                 <Button variant="light">Back</Button>
             </Link>
-            <Button variant="outline-light" onClick={() => props.setShow(true)}>Add question</Button>
-            <Button variant="light" type="submit">Send</Button>
+            {props.alert.length === 0 ?
+                <>
+                    <Button variant="outline-light" onClick={() => props.setShow(true)}>Add question</Button>
+                    <Button variant="light" type="submit">Send</Button>
+                </>
+                :
+                <></>}
         </div>
     );
 }
