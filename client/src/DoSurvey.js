@@ -8,7 +8,7 @@ function DoSurvey(props) {
   const [survey, setSurvey] = useState([]);
   // Answers from user
   const [answers, setAnswers] = useState([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState('');
   const [validated, setValidated] = useState(false);
@@ -140,7 +140,7 @@ function DoSurvey(props) {
             </Row>
           </Container >
       }
-      {error ? <ErrModal error={error} setError={setError}/> : <></>}
+      {error ? <ErrModal error={error} setError={setError} /> : <></>}
 
     </>
   );
