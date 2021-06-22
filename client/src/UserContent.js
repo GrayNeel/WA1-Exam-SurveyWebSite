@@ -26,7 +26,7 @@ function UserContent(props) {
     return (
         <>
             {loading === true ? <></> :
-                (props.surveys !== undefined && props.surveys.length > 0) ?
+                (surveys !== undefined && surveys.length > 0) ?
                 <Container>
                     <Title />
                     <Row className="justify-content-center">
