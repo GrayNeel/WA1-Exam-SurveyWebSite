@@ -1,12 +1,14 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import gray from './GraySurvey.svg';
 import { Navbar, Nav } from 'react-bootstrap';
 function SurveyNavbar(props) {
     return (
         <>
             <Navbar bg="dark" variant="dark" expand="lg" className="justify-content-between">
-                <Navbar.Brand href="/" className="d-inline-block align-top">
-                    GraySurvey
+                <Navbar.Brand href="/" className="d-inline-block">
+                    <img alt="" src={gray} width="23" height="23" className="d-inline-block" />
+                    <span className="ml-1">GraySurvey</span>
                 </Navbar.Brand>
 
                 <Navbar.Text className="mr-2 text-white">
@@ -15,7 +17,7 @@ function SurveyNavbar(props) {
 
                 {props.loggedIn ?
                     <>
-                        <div style={{cursor: "pointer"}} onClick={props.logout}>
+                        <div style={{ cursor: "pointer" }} onClick={props.logout}>
                             <Navbar.Text className="mr-2 text-white">
                                 Logout
                             </Navbar.Text>
