@@ -1,4 +1,6 @@
 import { Form, Button, Alert, Col, Row, Container, Card } from 'react-bootstrap';
+
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 function LoginForm(props) {
@@ -29,30 +31,35 @@ function LoginForm(props) {
     return (
         <>
             <Container>
-            <Row className="justify-content-md-center mt-5 pt-5 ml-3">
-                <Card
-                    bg={'dark'}
-                    key={1}
-                    text={'white'}
-                    style={{ width: '18rem' }}
-                    className="mb-2 justify-content-md-center"
-                >
-                    <Card.Header><b>Login to start writing your own survey!</b></Card.Header>
-                    <Card.Body>
-                        <Form noValidate validated={validated}>
-                            {errorMessage ? <Alert variant='danger'>{errorMessage}</Alert> : ''}
-                            <Form.Group controlId='username'>
-                                <Form.Label>email</Form.Label>
-                                <Form.Control required type='email' placeholder="Insert email here" value={username} onChange={ev => setUsername(ev.target.value)} />
-                            </Form.Group>
-                            <Form.Group controlId='password'>
-                                <Form.Label>Password</Form.Label>
-                                <Form.Control required type='password' placeholder="Insert password here" value={password} onChange={ev => setPassword(ev.target.value)} />
-                            </Form.Group>
-                            <Button variant="outline-light" onClick={handleSubmit}>Login</Button>
-                        </Form>
-                    </Card.Body>
-                </Card>
+                <Row className="justify-content-md-center mt-5 pt-5 ml-3">
+                    <Card
+                        bg={'dark'}
+                        key={1}
+                        text={'white'}
+                        style={{ width: '18rem' }}
+                        className="mb-2 justify-content-md-center"
+                    >
+                        <Card.Header><b>Login to start writing your own survey!</b></Card.Header>
+                        <Card.Body>
+                            <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                                {errorMessage ? <Alert variant='danger'>{errorMessage}</Alert> : ''}
+                                <Form.Group controlId='username'>
+                                    <Form.Label>email</Form.Label>
+                                    <Form.Control required type='email' placeholder="Insert email here" value={username} onChange={ev => setUsername(ev.target.value)} />
+                                </Form.Group>
+                                <Form.Group controlId='password'>
+                                    <Form.Label>Password</Form.Label>
+                                    <Form.Control required type='password' placeholder="Insert password here" value={password} onChange={ev => setPassword(ev.target.value)} />
+                                </Form.Group>
+                                <Row className="justify-content-between pl-3 pr-3">
+                                    <Button variant="outline-light" type="submit">Login</Button>
+                                    <Link to="/">
+                                        <Button variant="outline-secondary">Back</Button>
+                                    </Link>
+                                </Row>
+                            </Form>
+                        </Card.Body>
+                    </Card>
                 </Row>
             </Container>
         </>)
