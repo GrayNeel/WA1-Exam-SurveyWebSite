@@ -1,6 +1,7 @@
 import { Container, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import NotFound from './NotFound';
 import API from './API.js';
 import './App.css';
 
@@ -25,6 +26,7 @@ function UserContent(props) {
     return (
         <>
             {loading === true ? <></> :
+                (props.surveys !== undefined && props.surveys.length > 0) ?
                 <Container>
                     <Title />
                     <Row className="justify-content-center">
@@ -33,6 +35,8 @@ function UserContent(props) {
                         </Col>
                     </Row>
                 </Container>
+                :
+                <Row className="justify-content-center mt-2 text-white"><h2>No surveys available. Login to start creating a new one!</h2></Row>
             }
         </>
     );

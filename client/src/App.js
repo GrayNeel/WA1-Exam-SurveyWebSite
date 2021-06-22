@@ -53,7 +53,7 @@ function App() {
         <Container fluid>
           <Switch>
             <Route exact path="/login">
-              <>{loggedIn ? <NotFound/> : <LoginForm login={doLogIn} />}</>
+              <>{loggedIn ? <Redirect to="/"/> : <LoginForm login={doLogIn} />}</>
             </Route>
 
             <Route exact path="/">
