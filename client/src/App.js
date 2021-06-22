@@ -53,7 +53,7 @@ function App() {
         <Container fluid>
           <Switch>
             <Route exact path="/login">
-              <>{loggedIn ? <Redirect to="/" /> : <LoginForm login={doLogIn} />}</>
+              <>{loggedIn ? <NotFound/> : <LoginForm login={doLogIn} />}</>
             </Route>
 
             <Route exact path="/">
@@ -62,7 +62,7 @@ function App() {
 
             <Route path="/survey/:surveyId" render={({ match }) =>
               <>
-                {loggedIn ? <Redirect to="/" /> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} />}
+                {loggedIn ? <NotFound/> : <DoSurvey surveyId={match.params.surveyId} loggedIn={loggedIn} />}
               </>
             } />
 

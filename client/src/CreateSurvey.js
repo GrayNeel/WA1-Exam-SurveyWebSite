@@ -277,7 +277,6 @@ function ClosedQuestion(props) {
                                 name={option.questionId}
                                 type="radio"
                                 label={option.text}
-                                checked="false"
                                 disabled
                             />
                         )}
@@ -297,7 +296,6 @@ function ClosedQuestion(props) {
                                 name={option.questionId}
                                 type={'checkbox'}
                                 label={option.text}
-                                checked="false"
                                 disabled
                             />
                         )}
@@ -317,6 +315,7 @@ function AddQuestionModal(props) {
     const [validated, setValidated] = useState(false);
 
     const [title, setTitle] = useState('');
+    const [errorMess, setErrorMess] = useState('');
 
     // States for open question
     const [mandatory, setMandatory] = useState(false);
@@ -324,9 +323,58 @@ function AddQuestionModal(props) {
     // States for closed question
     const [min, setMin] = useState(0);
     const [max, setMax] = useState(1);
-    const [options, setOptions] = useState([]);
+    const [options, setOptions] = useState([{ text: "" }, { text: "" }]);
 
-    const handleClose = () => props.setShow(false);
+
+    // Function that resets closed parameters
+    const prepareOpen = () => {
+        setMin(0);
+        setMax(1);
+        setOptions([{ text: "" }, { text: "" }]);
+        setType(0);
+    }
+
+    // Function that resets open parameter
+    const prepareClosed = () => {
+        setTitle('');
+        setMandatory(false);
+        setType(1);
+    }
+
+    const handleClose = () => {
+        props.setShow(false);
+        prepareClosed();
+        prepareOpen();
+        setType(-1);
+        setErrorMess('');
+    }
+
+    const changeOption = (value, index) => {
+        setOptions(oldOptions => {
+            return oldOptions.map((op, i) => {
+                if (i === index)
+                    return { text: value };
+                else
+                    return op;
+            });
+        });
+    }
+
+    const addOption = () => {
+        setOptions(oldOptions => [...oldOptions, { text: "" }]);
+    }
+
+    const updateMin = (value) => {
+        if (value <= max && value <= options.length) {
+            setMin(value);
+        }
+    }
+
+    const updateMax = (value) => {
+        if (value >= min && value <= options.length) {
+            setMax(value);
+        }
+    }
 
     const handleSubmit = (event) => {
         let valid = true;
@@ -340,115 +388,144 @@ function AddQuestionModal(props) {
             valid = false;
         }
 
-        if (valid) {
+        if (type === 0 && valid) {
             //Open question validation
-            if (mandatory !== undefined) {
-                props.setSurvey(oldSurvey => [...oldSurvey, { title: title, mandatory: mandatory ? 1 : 0 }]);
-                setMandatory(false);
-                handleClose();
-                setTitle('');
-            } else {
-                //Closed question validation
-                if (options.length >= min && options.length >= max && min <= max) {
-                    props.setSurvey(oldSurvey => [...oldSurvey, { title: title, min: min, max: max, options: options }]);
-                    setMin(0);
-                    setMax(1);
-                    setOptions([]);
-                    setTitle('');
-                    handleClose();
-                } else {
-                    // Error message
+            props.setSurvey(oldSurvey => [...oldSurvey, { title: title, mandatory: mandatory ? 1 : 0 }]);
+            setMandatory(false);
+            handleClose();
+            setTitle('');
+        } else if (type === 1 && valid) {
+            //Closed question validation
+            // Search for empty options
+            options.forEach(o => {
+                if (o.text.length === 0) {
+                    setErrorMess('Missing text in options. Please, try again.');
+                    valid = false;
                 }
-            }
+            });
         }
-        setValidated(true);
-    };
-    
-    return (
-        <>
-            <Modal show={props.show} onHide={handleClose}>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Add a new question</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Choose the type of question:</Form.Label>
-                        <Form.Check
-                            label="Open Question"
-                            name="group1"
-                            type="radio"
-                            id={`inline-radio-2`}
-                            className="text-monospace"
-                            onChange={() => setType(0)}
-                            checked={type === 0 ? true : false}
-                        /><Form.Check
-                            label="Closed Question"
-                            name="group1"
-                            type="radio"
-                            id={`inline-radio-2`}
-                            className="text-monospace mb-2"
-                            onChange={() => setType(1)}
-                            checked={type === 1 ? true : false}
-                        />
-                        {type === -1 ? <></> :
-                            type === 0 ?
-                                //Open question
-                                <>
-                                    <h5>Open question</h5>
+
+        if (valid && type === 1) {
+            //Closed question validation
+            if (options.length >= min && options.length >= max && min <= max) {
+                props.setSurvey(oldSurvey => [...oldSurvey, { title: title, min: min, max: max, options: options }]);
+                setMin(0);
+                setMax(1);
+                setOptions([]);
+                setTitle('');
+                handleClose();
+                setErrorMess('');
+        } else {
+            // Error message
+            setErrorMess('Check your parameters, something isn\'t right.');
+        }
+    }
+    setValidated(true);
+};
+
+return (
+    <>
+        <Modal show={props.show} onHide={handleClose}>
+            <Form onSubmit={handleSubmit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add a new question</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Choose the type of question:</Form.Label>
+                    <Form.Check
+                        label="Open Question"
+                        name="group1"
+                        type="radio"
+                        id={`inline-radio-2`}
+                        className="text-monospace"
+                        onChange={() => prepareOpen()}
+                        checked={type === 0 ? true : false}
+                    /><Form.Check
+                        label="Closed Question"
+                        name="group1"
+                        type="radio"
+                        id={`inline-radio-2`}
+                        className="text-monospace mb-2"
+                        onChange={() => prepareClosed()}
+                        checked={type === 1 ? true : false}
+                    />
+                    {type === -1 ? <></> :
+                        type === 0 ?
+                            //Open question
+                            <>
+                                <h5>Open question</h5>
+                                <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Title</Form.Label>
+                                <Form.Control type="text" value={title} placeholder="Type the title of the question here" className="mb-1" onChange={(td) => setTitle(td.target.value)} required />
+                                <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Is it mandatory?</Form.Label>
+                                <br></br>
+                                <Form.Check
+                                    inline
+                                    label="Yes"
+                                    name="group2"
+                                    type="radio"
+                                    id={`inline-radio-3`}
+                                    className="text-monospace"
+                                    checked={mandatory}
+                                    onChange={() => setMandatory(true)}
+                                />
+                                <Form.Check
+                                    inline
+                                    label="No"
+                                    name="group2"
+                                    type="radio"
+                                    id={`inline-radio-3`}
+                                    className="text-monospace"
+                                    checked={mandatory === false ? true : false}
+                                    onChange={() => setMandatory(false)}
+                                />
+                            </>
+                            :
+                            //Closed Question
+                            <>
+                                <h5>Closed question</h5>
+                                <Form.Group controlId="closedQuestion">
+                                    <Row className="text-monospace text-danger justify-content-center" style={{ fontSize: "15px" }}>{errorMess}</Row>
                                     <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Title</Form.Label>
                                     <Form.Control type="text" value={title} placeholder="Type the title of the question here" className="mb-1" onChange={(td) => setTitle(td.target.value)} required />
-                                    <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Is it mandatory?</Form.Label>
-                                    <br></br>
-                                    <Form.Check
-                                        inline
-                                        label="Yes"
-                                        name="group2"
-                                        type="radio"
-                                        id={`inline-radio-3`}
-                                        className="text-monospace"
-                                        checked={mandatory}
-                                        onChange={() => setMandatory(true)}
-                                    />
-                                    <Form.Check
-                                        inline
-                                        label="No"
-                                        name="group2"
-                                        type="radio"
-                                        id={`inline-radio-3`}
-                                        className="text-monospace"
-                                        checked={mandatory === false ? true : false}
-                                        onChange={() => setMandatory(false)}
-                                    />
-                                </>
-                                :
-                                //Closed Question
-                                <>
-                                    <h5>Closed question</h5>
-                                    <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Title</Form.Label>
-                                    <Form.Control type="text" placeholder="Type the title of the question here" className="mb-1" />
                                     <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Min answers</Form.Label>
-                                    <Form.Control type="text" placeholder="Type the number of minimum admitted answers here" className="mb-1" />
+                                    <Form.Control as="select" value={min} onChange={(td) => updateMin(td.target.value)}>
+                                        <option>0</option>
+                                        {options ? options.map((op, index) =>
+                                            <option>{index + 1}</option>
+                                        ) : <></>
+                                        }
+                                    </Form.Control>
                                     <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Max answers</Form.Label>
-                                    <Form.Control type="text" placeholder="Type the number of maximum admitted answers here" className="mb-1" />
+                                    <Form.Control as="select" value={max} onChange={(td) => updateMax(td.target.value)}>
+                                        {options ? options.map((op, index) =>
+                                            <option>{index + 1}</option>
+                                        ) : <></>
+                                        }
+                                    </Form.Control>
                                     <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Options</Form.Label>
                                     <br></br>
-                                    <Button variant="secondary">Add option</Button>
-                                </>
-                        }
+                                    {options ? options.map((op, index) =>
+                                        <Form.Control type="text" placeholder={"Option " + (index + 1)} className="mb-1" value={options.find((o, i) => i === index).text} onChange={(td) => changeOption(td.target.value, index)} />
+                                    ) : <></>
+                                    }
+                                    <Button variant="secondary" onClick={() => addOption()}>Add option</Button>
+                                </Form.Group>
+                            </>
+                    }
 
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>
-                            Back
-                        </Button>
-                        <Button variant="dark" type="submit">
-                            Add
-                        </Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </>
-    );
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Back
+                    </Button>
+                    <Button variant="dark" type="submit">
+                        Add
+                    </Button>
+                </Modal.Footer>
+            </Form>
+        </Modal>
+    </>
+);
 }
 
 export default CreateSurvey;
