@@ -194,7 +194,7 @@ app.post('/api/surveys/new', isLoggedIn,
 app.post('/api/surveys/answer',
   check('id').isNumeric(),
   body('name').isLength({ min: 1 }),
-  body('answers').not().isEmpty(), (req, res) => {
+  (req, res) => {
     //surveys/answer?id=1
     const id = req.query.id;
     const name = req.body.name;
