@@ -274,10 +274,11 @@ function OpenQuestion(props) {
     <Form.Group className="mb-3" controlId={props.questionId}>
       <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
       {props.mandatory === 1 ?
-        <Form.Control as="textarea" rows={5} value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} required />
+        <Form.Control as="textarea" rows={4} maxlength="200" value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} required />
         :
-        <Form.Control as="textarea" rows={5} value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} />
+        <Form.Control as="textarea" rows={4} maxlength="200" value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} />
       }
+      <div className="text-monospace" style={{ fontSize: "11px" }}>Characters left: {actualAnswer ? 200-actualAnswer.openAnswer.length : 200}</div>
     </Form.Group>
   );
 }

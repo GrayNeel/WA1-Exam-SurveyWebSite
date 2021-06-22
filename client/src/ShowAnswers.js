@@ -106,7 +106,7 @@ function OpenQuestion(props) {
 
     return (
         <Form.Group className="mb-3" controlId={props.questionId}>
-                <Form.Control as="textarea" rows={5} value={actualAnswer ? actualAnswer.openAnswer : ''} disabled/>
+                <Form.Control as="textarea" rows={4} value={actualAnswer ? actualAnswer.openAnswer : ''} disabled/>
         </Form.Group>
     );
 }

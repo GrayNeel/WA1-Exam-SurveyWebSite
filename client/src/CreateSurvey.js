@@ -275,13 +275,9 @@ function ClosedQuestion(props) {
                                 key={option.optionId}
                                 id={option.questionId}
                                 name={option.questionId}
-                                type={'radio'}
+                                type="radio"
                                 label={option.text}
-                                checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
-                                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
-                                    :
-                                    false
-                                }
+                                checked="false"
                                 disabled
                             />
                         )}
@@ -301,11 +297,7 @@ function ClosedQuestion(props) {
                                 name={option.questionId}
                                 type={'checkbox'}
                                 label={option.text}
-                                checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
-                                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
-                                    :
-                                    false
-                                }
+                                checked="false"
                                 disabled
                             />
                         )}
@@ -324,9 +316,15 @@ function AddQuestionModal(props) {
     const [type, setType] = useState(-1);
     const [validated, setValidated] = useState(false);
 
-    // States for open question
     const [title, setTitle] = useState('');
+
+    // States for open question
     const [mandatory, setMandatory] = useState(false);
+
+    // States for closed question
+    const [min, setMin] = useState(0);
+    const [max, setMax] = useState(1);
+    const [options, setOptions] = useState([]);
 
     const handleClose = () => props.setShow(false);
 
@@ -343,38 +341,29 @@ function AddQuestionModal(props) {
         }
 
         if (valid) {
-            props.setSurvey(oldSurvey => [...oldSurvey, { title: title, mandatory: mandatory ? 1 : 0 }]);
-            handleClose();
-            setTitle('');
-            setMandatory(false);
-            setValidated(true);
-            //setError(false);
-        } else {
-            console.log("HEERE");
-            setValidated(false);
-            //setError(true);
+            //Open question validation
+            if (mandatory !== undefined) {
+                props.setSurvey(oldSurvey => [...oldSurvey, { title: title, mandatory: mandatory ? 1 : 0 }]);
+                setMandatory(false);
+                handleClose();
+                setTitle('');
+            } else {
+                //Closed question validation
+                if (options.length >= min && options.length >= max && min <= max) {
+                    props.setSurvey(oldSurvey => [...oldSurvey, { title: title, min: min, max: max, options: options }]);
+                    setMin(0);
+                    setMax(1);
+                    setOptions([]);
+                    setTitle('');
+                    handleClose();
+                } else {
+                    // Error message
+                }
+            }
         }
+        setValidated(true);
     };
-
-
-    // {
-    //     "title": "Do you read Focus magazine?",
-    //     "min": 1,
-    //     "max": 1,
-    //     "options": [
-    //         {
-    //             "text": "Yes"
-    //         },
-    //         {
-    //             "text": "No"
-    //         }
-    //     ]
-    // },
-    // {
-    //     "title": "How do you describe the capability of the sun to rise?",
-    //     "mandatory": 0
-    // },
-
+    
     return (
         <>
             <Modal show={props.show} onHide={handleClose}>
