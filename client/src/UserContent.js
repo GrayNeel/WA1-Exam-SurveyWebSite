@@ -1,7 +1,6 @@
 import { Container, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import NotFound from './NotFound';
 import API from './API.js';
 import './App.css';
 

@@ -1,5 +1,5 @@
 import { Container, Col, Row, Button, Form, Modal } from 'react-bootstrap';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import API from './API.js';
 
@@ -232,19 +232,19 @@ function Question(props) {
                     </div>
                     {props.questionId > 1 ?
                         <div className="" onClick={() => props.moveQuestionUp(props.questionId)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16">
                                 <path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
                             </svg>
                         </div>
                         :
                         <></>
                     }
-                    {(props.length && props.length == props.questionId) ?
+                    {(props.length && props.length === props.questionId) ?
                         <></>
                         :
                         <div className="" onClick={() => props.moveQuestionDown(props.questionId)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
                             </svg>
                         </div>
                     }
@@ -312,7 +312,6 @@ function ClosedQuestion(props) {
 function AddQuestionModal(props) {
     // Open question = 0, Closed question = 1
     const [type, setType] = useState(-1);
-    const [validated, setValidated] = useState(false);
 
     const [title, setTitle] = useState('');
     const [errorMess, setErrorMess] = useState('');
@@ -366,13 +365,13 @@ function AddQuestionModal(props) {
 
     const updateMin = (value) => {
         if (value <= max && value <= options.length) {
-            setMin(value);
+            setMin(parseInt(value));
         }
     }
 
     const updateMax = (value) => {
         if (value >= min && value <= options.length) {
-            setMax(value);
+            setMax(parseInt(value));
         }
     }
 
@@ -381,7 +380,6 @@ function AddQuestionModal(props) {
         const form = event.currentTarget;
 
         event.preventDefault();
-        console.log(props.survey);
 
         if (form.checkValidity() === false) {
             event.stopPropagation();
@@ -420,7 +418,6 @@ function AddQuestionModal(props) {
             setErrorMess('Check your parameters, something isn\'t right.');
         }
     }
-    setValidated(true);
 };
 
 return (
@@ -491,21 +488,21 @@ return (
                                     <Form.Control as="select" value={min} onChange={(td) => updateMin(td.target.value)}>
                                         <option>0</option>
                                         {options ? options.map((op, index) =>
-                                            <option>{index + 1}</option>
+                                            <option key={index}>{index + 1}</option>
                                         ) : <></>
                                         }
                                     </Form.Control>
                                     <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Max answers</Form.Label>
                                     <Form.Control as="select" value={max} onChange={(td) => updateMax(td.target.value)}>
                                         {options ? options.map((op, index) =>
-                                            <option>{index + 1}</option>
+                                            <option key={index}>{index + 1}</option>
                                         ) : <></>
                                         }
                                     </Form.Control>
                                     <Form.Label className="text-monospace" style={{ fontSize: "15px" }}>Options</Form.Label>
                                     <br></br>
                                     {options ? options.map((op, index) =>
-                                        <Form.Control type="text" placeholder={"Option " + (index + 1)} className="mb-1" value={options.find((o, i) => i === index).text} onChange={(td) => changeOption(td.target.value, index)} />
+                                        <Form.Control key={index} type="text" placeholder={"Option " + (index + 1)} className="mb-1" value={options.find((o, i) => i === index).text} onChange={(td) => changeOption(td.target.value, index)} />
                                     ) : <></>
                                     }
                                     <Button variant="secondary" onClick={() => addOption()}>Add option</Button>

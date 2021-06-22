@@ -100,7 +100,6 @@ function DoSurvey(props) {
         if (q.min !== undefined && q.min > 0) {
           let ans = answers.find(o => o.questionId === q.questionId);
           // if it is not present or > max, it is not valid
-          console.log("CLOSED QUESTION MANDATORY: " + ans);
           if (ans === undefined || ans.selOptions.length > q.max) {
             event.stopPropagation();
             valid = false;
@@ -115,7 +114,6 @@ function DoSurvey(props) {
       setValidated(true);
       setError(false);
     } else {
-      console.log("HEERE");
       setError(true);
     }
   };
@@ -274,9 +272,9 @@ function OpenQuestion(props) {
     <Form.Group className="mb-3" controlId={props.questionId}>
       <Form.Label className="text-monospace" style={{ fontSize: "12px" }}>{props.mandatory === 1 ? "This question is mandatory" : "This question is optional"}</Form.Label>
       {props.mandatory === 1 ?
-        <Form.Control as="textarea" rows={4} maxlength="200" value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} required />
+        <Form.Control as="textarea" rows={4} maxLength="200" value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} required />
         :
-        <Form.Control as="textarea" rows={4} maxlength="200" value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} />
+        <Form.Control as="textarea" rows={4} maxLength="200" value={actualAnswer ? actualAnswer.openAnswer : ''} onChange={td => props.editOrAddOpenAnswer({ questionId: props.questionId, openAnswer: td.target.value })} />
       }
       <div className="text-monospace" style={{ fontSize: "11px" }}>Characters left: {actualAnswer ? 200-actualAnswer.openAnswer.length : 200}</div>
     </Form.Group>
@@ -314,7 +312,6 @@ function ClosedQuestion(props) {
     } else {
       // User unchecked, so remove is needed
       const newOpt = selQuestion.selOptions.filter(opt => opt !== optionId);
-      console.log("NEW: " + newOpt);
       props.editOrAddClosedAnswer({ questionId: questionId, selOptions: newOpt });
     }
   }

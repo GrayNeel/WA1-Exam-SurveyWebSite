@@ -139,8 +139,6 @@ app.post('/api/surveys/new', isLoggedIn,
 
     let userId = req.user.id;
 
-    console.log(req.body);
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -249,7 +247,6 @@ app.post('/api/surveys/answer',
         }
 
       });
-      console.log("Result is: " + verified);
       return verified;
     }
 

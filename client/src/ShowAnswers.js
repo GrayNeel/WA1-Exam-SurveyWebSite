@@ -1,6 +1,6 @@
 import NotFound from './NotFound.js';
-import { Container, Col, Row, Button, Form, ButtonGroup } from 'react-bootstrap';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
+import { Container, Col, Row, Button, Form } from 'react-bootstrap';
+import {  Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import API from './API.js';
 
@@ -13,8 +13,7 @@ function ShowAnswers(props) {
     const [counter, setCounter] = useState(0);
 
     const [loading, setLoading] = useState(true);
-    const [validated, setValidated] = useState(false);
-
+    
     useEffect(() => {
         // if user is logged
         if (props.loggedIn && survey.title === undefined) {
