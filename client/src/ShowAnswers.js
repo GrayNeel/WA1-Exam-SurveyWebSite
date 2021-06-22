@@ -56,6 +56,11 @@ function ShowAnswers(props) {
                                     <NameBox answers={answers[counter]} />
                                     {answers.length > 0 ? <QuestionsList questions={survey.questions} answers={answers[counter].answers} /> : <></>}
                                 </Form>
+                                <Row className="justify-content-center pt-1">
+                                    <Link to="/">
+                                        <Button variant="outline-light">Back to surveys</Button>
+                                    </Link>
+                                </Row>
                             </Col>
                         </Row>
                     </Container>
@@ -106,74 +111,76 @@ function OpenQuestion(props) {
 
     return (
         <Form.Group className="mb-3" controlId={props.questionId}>
-                <Form.Control as="textarea" rows={4} value={actualAnswer ? actualAnswer.openAnswer : ''} disabled/>
+            <Form.Control as="textarea" rows={4} value={actualAnswer ? actualAnswer.openAnswer : ''} disabled />
         </Form.Group>
     );
 }
 
 function ClosedQuestion(props) {
     return (
-      <>
-        {props.max === 1 ?
-          <>
-            <Form.Group className="ml-3" controlId={props.questionId}>
-              <br></br>
-              {props.options.map((option) =>
-                <Form.Check
-                  key={option.optionId}
-                  id={option.questionId}
-                  name={option.questionId}
-                  type={'radio'}
-                  label={option.text}
-                  checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
-                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
-                    :
-                    false
-                  }
-                  disabled
-                />
-              )}
-            </Form.Group>
-            <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span> 
-            <br></br>
-            <span className="text-monospace" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span> 
-          </>
-          :
-          <>
-            <Form.Group className="ml-3">
-              <br></br>
-              {props.options.map((option) =>
-                <Form.Check
-                  key={option.optionId}
-                  id={option.questionId}
-                  name={option.questionId}
-                  type={'checkbox'}
-                  label={option.text}
-                  checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
-                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
-                    :
-                    false
-                  }
-                  disabled
-                />
-              )}
-            </Form.Group>
-            <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span> 
-            <br></br>
-            <span className="text-monospace" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span> 
-          </>
-        }
-      </>
+        <>
+            {props.max === 1 ?
+                <>
+                    <Form.Group className="ml-3" controlId={props.questionId}>
+                        <br></br>
+                        {props.options.map((option) =>
+                            <Form.Check
+                                key={option.optionId}
+                                id={option.questionId}
+                                name={option.questionId}
+                                type={'radio'}
+                                label={option.text}
+                                checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
+                                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
+                                    :
+                                    false
+                                }
+                                disabled
+                            />
+                        )}
+                    </Form.Group>
+                    <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span>
+                    <br></br>
+                    <span className="text-monospace" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span>
+                </>
+                :
+                <>
+                    <Form.Group className="ml-3">
+                        <br></br>
+                        {props.options.map((option) =>
+                            <Form.Check
+                                key={option.optionId}
+                                id={option.questionId}
+                                name={option.questionId}
+                                type={'checkbox'}
+                                label={option.text}
+                                checked={props.answers.find(o => o.questionId === props.questionId) !== undefined ?
+                                    props.answers.find(o => o.questionId === props.questionId).selOptions.find(op => op === option.optionId) !== undefined ? true : false
+                                    :
+                                    false
+                                }
+                                disabled
+                            />
+                        )}
+                    </Form.Group>
+                    <span className="text-monospace" style={{ fontSize: "12px" }}>Minimum answers: {props.min} </span>
+                    <br></br>
+                    <span className="text-monospace" style={{ fontSize: "12px" }}>Maximum answers: {props.max} </span>
+                </>
+            }
+        </>
     );
-  }
+}
 
 function UpButtons(props) {
     return (
-        <div className="d-flex justify-content-between mt-4">
-            {props.counter > 0 ? <Button variant="outline-light" onClick={() => props.setCounter(old => old - 1)}>Previous</Button> : <Button variant="outline-light" className="invisible" onClick={() => props.setCounter(old => old - 1)}>Previous</Button>}
-            <h4 className="text-white">Answer {props.counter+1}</h4>
-            {props.counter < props.length - 1 ? <Button variant="outline-light" onClick={() => props.setCounter(old => old + 1)}>Next</Button> : <Button variant="outline-light" className="invisible" onClick={() => props.setCounter(old => old + 1)}>Next</Button>}
-        </div>
+        <>
+            <div className="d-flex justify-content-between mt-4">
+                {props.counter > 0 ? <Button variant="outline-light" onClick={() => props.setCounter(old => old - 1)}>Previous</Button> : <Button variant="outline-light" className="invisible" onClick={() => props.setCounter(old => old - 1)}>Previous</Button>}
+                <h4 className="text-white">Answer {props.counter + 1}</h4>
+                {props.counter < props.length - 1 ? <Button variant="outline-light" onClick={() => props.setCounter(old => old + 1)}>Next</Button> : <Button variant="outline-light" className="invisible" onClick={() => props.setCounter(old => old + 1)}>Next</Button>}
+            </div>
+        </>
     );
 }
 

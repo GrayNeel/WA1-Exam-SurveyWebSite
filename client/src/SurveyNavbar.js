@@ -1,6 +1,6 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from 'react-bootstrap/Navbar';
+import { Navbar, Nav } from 'react-bootstrap';
 function SurveyNavbar(props) {
     return (
         <>
