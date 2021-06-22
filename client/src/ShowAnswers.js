@@ -13,7 +13,7 @@ function ShowAnswers(props) {
     const [counter, setCounter] = useState(0);
 
     const [loading, setLoading] = useState(true);
-    
+
     useEffect(() => {
         // if user is logged
         if (props.loggedIn && survey.title === undefined) {
@@ -45,7 +45,7 @@ function ShowAnswers(props) {
             {survey.err ?
                 <NotFound setLoading={setLoading} />
                 :
-                (loading === true || answers === undefined) ? <></> :
+                (loading === true || answers === undefined || answers[0] === undefined) ? <><Row className="justify-content-center mt-2 text-white"><h2>This survey is not available.</h2></Row></> :
                     <Container>
                         <SurveyTitle title={survey.title} />
                         <Row className="justify-content-center">

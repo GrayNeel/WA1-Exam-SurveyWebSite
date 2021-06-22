@@ -3,9 +3,14 @@
 
 ## React Client Application Routes
 
-- Route `/`: page content and purpose
-- Route `/something/:param`: page content and purpose, param specification
-- ...
+- Route `/`: this route shows all available surveys to unregistered user. If logged in, only administrator's survey are shown
+- Route `/login`: route to login by using credentials (email and password)
+- Route `/survey/:surveyId`: route to answer a survey. Only unlogged user can access it, otherwise 404 page is shown.
+- Route `/admin/new`: route for logged administrators only. It allows the creation of a new survey.
+- Route `/admin/survey/:surveyId`: route for logged administrators only. It shows answers to a specific surveyId (only if the owner is the logged user).
+- Route ``: 
+- Route ``: 
+
 
 ## API Server
 
