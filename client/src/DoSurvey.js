@@ -10,7 +10,7 @@ function DoSurvey(props) {
   const [answers, setAnswers] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState('');
+  const [alert, setAlert] = useState('At least 3 characters are required');
   const [validated, setValidated] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState(false);
@@ -85,7 +85,7 @@ function DoSurvey(props) {
       valid = false;
     }
     else {
-      // Check if minimum answers for closed questions is satisfied
+      
       survey.questions.forEach(q => {
         // Search for the mandatory open questions
         if (q.mandatory !== undefined && q.mandatory === 1) {
@@ -100,7 +100,7 @@ function DoSurvey(props) {
         if (q.min !== undefined && q.min > 0) {
           let ans = answers.find(o => o.questionId === q.questionId);
           // if it is not present or > max, it is not valid
-          if (ans === undefined || ans.selOptions.length > q.max) {
+          if (ans === undefined || ans.selOptions.length > q.max || ans.selOptions.length < q.min) {
             event.stopPropagation();
             valid = false;
           }
@@ -167,13 +167,17 @@ function ErrModal(props) {
 function NameBox(props) {
 
   const validateName = (name) => {
-    if (name.length === 0) {
+    let trimmedName = name.trim();
+    if (trimmedName.length === 0) {
       props.setName('');
-      props.setAlert('');
+      props.setAlert('At least 3 characters are required');
     } else
-      if (!/[^a-zA-Z]/.test(name)) {
-        props.setName(name);
-        props.setAlert('');
+      if (!/[^a-z" "A-Z]/.test(trimmedName)) {
+        props.setName(trimmedName);
+        if(trimmedName.length < 3)
+          props.setAlert('At least 3 characters are required');
+        else
+          props.setAlert('');
       } else
         props.setAlert("Invalid name");
   }
